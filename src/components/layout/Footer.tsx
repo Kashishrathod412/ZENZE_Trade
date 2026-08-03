@@ -28,7 +28,7 @@ const footerLinks = {
 
 export default function Footer() {
   return (
-    <footer className="bg-[#030712] text-white/60 relative overflow-hidden border-t border-white/5 pt-10 pb-6">
+    <footer className="bg-[#030712] text-white/60 relative overflow-hidden border-t border-white/5 pt-8 sm:pt-10 pb-4 sm:pb-6">
       {/* Decorative Glows */}
       <div className="absolute top-0 left-1/4 w-[500px] h-[300px] bg-primary/10 blur-[120px] rounded-full pointer-events-none" />
       <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-accent/5 blur-[120px] rounded-full pointer-events-none" />
@@ -126,17 +126,18 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-6 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
-            <p className="text-[14px] font-medium opacity-80">© {new Date().getFullYear()} ZenzeTrade Elite. Built for Global Scale.</p>
-            <div className="flex items-center gap-6">
-              <Link to="/privacy" className="text-[13px] font-bold hover:text-white transition-colors">Privacy Policy</Link>
-              <Link to="/terms" className="text-[13px] font-bold hover:text-white transition-colors">Terms of Trade</Link>
+        <div className="pt-5 sm:pt-6 pb-1 sm:pb-0 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-3.5 sm:gap-6 text-center md:text-left">
+          <div className="flex flex-col md:flex-row items-center gap-2.5 sm:gap-4 md:gap-8">
+            <p className="text-xs sm:text-[14px] font-medium opacity-80">© {new Date().getFullYear()} ZenzeTrade Elite. Built for Global Scale.</p>
+            <div className="flex items-center gap-4 sm:gap-6">
+              <Link to="/privacy" className="text-xs sm:text-[13px] font-bold hover:text-white transition-colors">Privacy Policy</Link>
+              <span className="opacity-20 text-xs">•</span>
+              <Link to="/terms" className="text-xs sm:text-[13px] font-bold hover:text-white transition-colors">Terms of Trade</Link>
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row items-center gap-6">
-             <div className="flex items-center gap-2.5 px-5 py-2.5 rounded-xl bg-white/5 border border-white/5 text-[11px] font-black uppercase tracking-[0.2em] group transition-all hover:bg-white/10 hover:border-primary/30">
+          <div className="flex items-center justify-center">
+            <div className="flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-white/5 border border-white/5 text-[10px] sm:text-[11px] font-black uppercase tracking-wider sm:tracking-[0.2em] group transition-all hover:bg-white/10 hover:border-primary/30 whitespace-nowrap">
               <span className="opacity-40">Developed by</span>
               <span className="text-white group-hover:text-primary transition-colors">Vertex Global Tech</span>
             </div>

@@ -351,8 +351,10 @@ export default function ChatBox() {
     { icon: Megaphone, label: "Find Products", query: "find products" }
   ];
 
+  const isProductPage = location.pathname.startsWith('/product/');
+
   return (
-    <div className="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-[5100] font-inter">
+    <div className={`fixed ${isProductPage ? "bottom-[68px] right-3 sm:bottom-8 sm:right-8" : "bottom-4 right-4 sm:bottom-8 sm:right-8"} z-[5100] font-inter`}>
       <div className="relative flex items-end justify-end">
       <AnimatePresence>
         {isOpen && (
@@ -532,32 +534,32 @@ export default function ChatBox() {
         whileHover={{ scale: 1.05 }} 
         whileTap={{ scale: 0.95 }} 
         onClick={() => setIsOpen(!isOpen)} 
-        className={`relative w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center shadow-[0_20px_40px_-10px_rgba(0,0,0,0.4)] transition-all duration-500 z-10 ${
+        className={`relative w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center shadow-[0_15px_35px_-10px_rgba(0,0,0,0.4)] transition-all duration-500 z-10 ${
           isOpen 
             ? "bg-rose-500 text-white rotate-90 sm:rotate-0" 
             : "gradient-primary text-white"
         }`}
       >
-        <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent opacity-50 rounded-[1.5rem]" />
+        <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent opacity-50 rounded-full" />
         <AnimatePresence mode="wait">
           {isOpen ? (
             <motion.div key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }}>
-              <X className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+              <X className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
             </motion.div>
           ) : (
             <motion.div key="bot" initial={{ scale: 0, rotate: 90 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0, rotate: -90 }} className="relative">
-              <Bot className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+              <Bot className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
             </motion.div>
           )}
         </AnimatePresence>
         
         {!isOpen && (
           <>
-            <div className="absolute top-0 right-0 w-3 h-3 sm:w-3.5 sm:h-3.5 bg-emerald-500 border-2 border-white rounded-full shadow-[0_0_15px_rgba(16,185,129,1)] z-[30]" />
+            <div className="absolute top-0 right-0 w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 bg-emerald-500 border-2 border-white rounded-full shadow-[0_0_12px_rgba(16,185,129,1)] z-[30]" />
             <motion.div
-              animate={{ scale: [1, 1.4, 1], opacity: [0.4, 0, 0.4] }}
+              animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0, 0.3] }}
               transition={{ duration: 2.5, repeat: Infinity }}
-              className="absolute inset-0 rounded-[1.5rem] bg-primary/40 -z-10"
+              className="absolute inset-0 rounded-full bg-primary/30 -z-10"
             />
           </>
         )}

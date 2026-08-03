@@ -152,8 +152,8 @@ const Privacy = () => {
                 <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 relative">
 
                     {/* Navigation Sidebar */}
-                    <aside className="w-full lg:w-[350px] shrink-0 lg:sticky top-32 h-fit z-10 pb-4">
-                        <div className="glass-card p-8 lg:p-12 border border-primary/10 rounded-[40px] shadow-2xl relative overflow-hidden group">
+                    <aside className="w-full lg:w-[350px] shrink-0 lg:sticky top-32 h-fit z-10 pb-2 sm:pb-4">
+                        <div className="glass-card p-4 sm:p-6 lg:p-12 border border-primary/10 rounded-2xl sm:rounded-3xl lg:rounded-[40px] shadow-2xl relative overflow-hidden group">
                             <div className="absolute top-0 right-0 w-48 h-48 bg-primary/15 rounded-full blur-[100px] group-hover:bg-primary/25 transition-all duration-700 pointer-events-none" />
 
                             <h3 className="font-black text-2xl mb-10 hidden lg:flex items-center gap-4 text-foreground border-b border-border/50 pb-8 uppercase tracking-tighter">
@@ -175,24 +175,32 @@ const Privacy = () => {
                             </nav>
 
                             {/* Mobile Nav - Premium Scroll */}
-                            <nav className="flex lg:hidden overflow-x-auto gap-4 pb-6 -mx-4 px-4 no-scrollbar snap-x">
-                                {sections.map((section) => (
-                                    <button
-                                        key={section.id}
-                                        onClick={() => scrollToSection(section.id)}
-                                        className="shrink-0 flex items-center gap-4 whitespace-nowrap bg-muted/50 backdrop-blur-md border border-primary/20 px-6 py-4 rounded-2xl text-base font-black transition-all hover:bg-primary/10 hover:border-primary/40 snap-start shadow-lg active:scale-95"
-                                    >
-                                        <section.icon className="w-5 h-5 text-primary" />
-                                        {section.title}
-                                    </button>
-                                ))}
-                            </nav>
+                            <div className="lg:hidden">
+                                <div className="flex items-center justify-between mb-2.5 px-0.5">
+                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-1.5">
+                                        <Search className="w-3.5 h-3.5 text-primary" /> Quick Navigation
+                                    </span>
+                                    <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/60">5 Sections</span>
+                                </div>
+                                <nav className="flex overflow-x-auto gap-2 pb-2 -mx-1 px-1 no-scrollbar scroll-smooth">
+                                    {sections.map((section) => (
+                                        <button
+                                            key={section.id}
+                                            onClick={() => scrollToSection(section.id)}
+                                            className="shrink-0 inline-flex items-center gap-2 whitespace-nowrap bg-muted/60 dark:bg-white/5 border border-primary/15 hover:border-primary/30 active:bg-primary/20 px-3.5 py-2.5 rounded-xl text-xs font-bold text-foreground transition-all shadow-sm active:scale-95"
+                                        >
+                                            <section.icon className="w-4 h-4 text-primary shrink-0" />
+                                            <span>{section.title}</span>
+                                        </button>
+                                    ))}
+                                </nav>
+                            </div>
 
-                            <div className="mt-10 lg:mt-16 bg-primary/5 p-5 rounded-[28px] border border-primary/10 text-center relative overflow-hidden group/cta flex flex-col items-center gap-3">
+                            <div className="mt-4 sm:mt-6 lg:mt-16 bg-primary/5 p-3.5 sm:p-5 rounded-xl sm:rounded-2xl lg:rounded-[28px] border border-primary/10 text-center relative overflow-hidden group/cta flex flex-col items-center gap-2 sm:gap-3">
                                 <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover/cta:opacity-100 transition-opacity duration-700" />
                                 <p className="text-[10px] font-black text-primary uppercase tracking-[0.25em] relative z-10">Elite Privacy Shield</p>
                                 <Link to="/contact" className="relative z-10">
-                                    <Button className="rounded-lg gradient-primary text-white h-9 px-4 font-semibold text-xs shadow-md shadow-primary/20 hover:scale-[1.04] active:scale-95 transition-all gap-1.5 whitespace-nowrap">
+                                    <Button className="rounded-xl gradient-primary text-white h-8 sm:h-9 px-3.5 sm:px-4 font-bold text-xs shadow-md shadow-primary/20 hover:scale-[1.03] active:scale-95 transition-all gap-1.5 whitespace-nowrap">
                                         Data Support Node <ArrowRight className="w-3.5 h-3.5 shrink-0" />
                                     </Button>
                                 </Link>
@@ -201,7 +209,7 @@ const Privacy = () => {
                     </aside>
 
                     {/* Policy Sections */}
-                    <div className="flex-1 space-y-16 lg:space-y-28 min-w-0">
+                    <div className="flex-1 space-y-8 sm:space-y-16 lg:space-y-28 min-w-0">
                         {sections.map((section, index) => (
                             <motion.div
                                 key={section.id}
@@ -212,36 +220,36 @@ const Privacy = () => {
                                 className="relative group p-0.5"
                             >
                                 <div className="absolute -inset-4 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 rounded-[50px] opacity-0 group-hover:opacity-100 transition-all duration-1000 blur-3xl" />
-                                <div className="glass-card p-10 md:p-16 lg:p-20 border border-white/10 relative overflow-hidden hover:border-primary/20 transition-all duration-700 shadow-2xl rounded-[40px]">
+                                <div className="glass-card p-5 sm:p-10 md:p-16 lg:p-20 border border-white/10 relative overflow-hidden hover:border-primary/20 transition-all duration-700 shadow-2xl rounded-2xl sm:rounded-3xl lg:rounded-[40px]">
 
-                                    <div className="absolute top-0 right-0 p-12 lg:p-16 opacity-[0.03] translate-x-10 -translate-y-10 group-hover:rotate-6 group-hover:scale-110 transition-all duration-[2000ms]">
+                                    <div className="absolute top-0 right-0 p-12 lg:p-16 opacity-[0.03] translate-x-10 -translate-y-10 group-hover:rotate-6 group-hover:scale-110 transition-all duration-[2000ms] hidden sm:block">
                                         <section.icon className="w-48 h-48 lg:w-72 lg:h-72 text-primary" />
                                     </div>
 
-                                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-8 lg:gap-10 mb-10 lg:mb-12 relative z-10">
-                                        <div className="w-20 h-20 lg:w-24 lg:h-24 shrink-0 rounded-[30px] lg:rounded-[35px] bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center text-white shadow-2xl shadow-primary/30 ring-8 ring-primary/5">
-                                            <section.icon className="w-10 h-10 lg:w-12 lg:h-12" />
+                                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8 lg:gap-10 mb-6 sm:mb-10 lg:mb-12 relative z-10">
+                                        <div className="w-12 h-12 sm:w-20 sm:h-20 lg:w-24 lg:h-24 shrink-0 rounded-xl sm:rounded-[30px] lg:rounded-[35px] bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center text-white shadow-xl shadow-primary/30 ring-4 sm:ring-8 ring-primary/5">
+                                            <section.icon className="w-6 h-6 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
                                         </div>
                                         <div>
-                                            <div className="flex gap-4 mb-3">
-                                                <span className="text-xs font-black text-primary/50 uppercase tracking-[0.3em]">Protocol {index + 1}.0 Elite</span>
+                                            <div className="flex gap-4 mb-1.5 sm:mb-3">
+                                                <span className="text-[10px] sm:text-xs font-black text-primary/50 uppercase tracking-[0.25em] sm:tracking-[0.3em]">Protocol {index + 1}.0 Elite</span>
                                             </div>
-                                            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-foreground tracking-tighter leading-none">{section.title}</h2>
+                                            <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-foreground tracking-tighter leading-none">{section.title}</h2>
                                         </div>
                                     </div>
 
-                                    <div className="space-y-10 relative z-10">
-                                        <p className="text-xl md:text-2xl text-muted-foreground font-medium leading-relaxed max-w-4xl">
+                                    <div className="space-y-6 sm:space-y-10 relative z-10">
+                                        <p className="text-sm sm:text-xl md:text-2xl text-muted-foreground font-medium leading-relaxed max-w-4xl">
                                             {section.intro}
                                         </p>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-6 mt-6 sm:mt-10">
                                             {section.points.map((point, pIdx) => (
-                                                <div key={pIdx} className="flex flex-col items-start gap-5 p-8 rounded-[32px] bg-muted/30 border border-border/50 hover:border-primary/20 hover:bg-muted/50 transition-all duration-500 group/point h-full min-h-[160px] shadow-sm hover:shadow-xl">
-                                                    <div className="w-10 h-10 shrink-0 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover/point:scale-110 group-hover/point:bg-primary group-hover/point:text-white transition-all duration-500 shadow-sm">
-                                                        <CheckCircle className="w-5 h-5" />
+                                                <div key={pIdx} className="flex flex-col items-start gap-3 sm:gap-5 p-4 sm:p-8 rounded-xl sm:rounded-[32px] bg-muted/30 border border-border/50 hover:border-primary/20 hover:bg-muted/50 transition-all duration-500 group/point h-full min-h-[100px] sm:min-h-[160px] shadow-sm hover:shadow-xl">
+                                                    <div className="w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded-lg sm:rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover/point:scale-110 group-hover/point:bg-primary group-hover/point:text-white transition-all duration-500 shadow-sm">
+                                                        <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
                                                     </div>
                                                     <div className="flex-1">
-                                                        <span className="text-lg md:text-xl font-bold text-muted-foreground/90 group-hover:text-foreground transition-colors leading-snug">{point}</span>
+                                                        <span className="text-sm sm:text-lg md:text-xl font-bold text-muted-foreground/90 group-hover:text-foreground transition-colors leading-snug">{point}</span>
                                                     </div>
                                                 </div>
                                             ))}
@@ -256,7 +264,7 @@ const Privacy = () => {
                             initial={{ opacity: 0, scale: 0.9 }}
                             whileInView={{ opacity: 1, scale: 1 }}
                             viewport={{ once: true }}
-                            className="rounded-[30px] md:rounded-[50px] p-8 md:p-24 text-center text-white relative overflow-hidden shadow-[0_20px_80px_-15px_rgba(124,58,237,0.4)]"
+                            className="rounded-2xl sm:rounded-[30px] md:rounded-[50px] p-6 sm:p-10 md:p-24 text-center text-white relative overflow-hidden shadow-[0_20px_80px_-15px_rgba(124,58,237,0.4)]"
                             style={{ background: 'linear-gradient(135deg, hsl(262 83% 58%), hsl(262 83% 35%))' }}
                         >
                             <motion.div
@@ -267,14 +275,16 @@ const Privacy = () => {
                                 <Globe className="w-full h-full opacity-5" />
                             </motion.div>
 
-                            <h3 className="text-5xl md:text-7xl font-black mb-10 relative z-10 leading-tight">Data Integrity at Global Scale.</h3>
-                            <p className="text-xl md:text-2xl text-white/70 mb-14 max-w-3xl mx-auto font-medium relative z-10 leading-relaxed">
+                            <h3 className="text-2xl sm:text-4xl md:text-7xl font-black mb-3 sm:mb-8 md:mb-10 relative z-10 leading-tight tracking-tight">
+                                Data Integrity at Global Scale.
+                            </h3>
+                            <p className="text-xs sm:text-lg md:text-2xl text-white/80 mb-6 sm:mb-10 md:mb-14 max-w-3xl mx-auto font-medium relative z-10 leading-relaxed">
                                 Connect with our certified Data Privacy Officers for a detailed security audit of your elite membership.
                             </p>
 
-                            <Link to="/contact" className="relative z-10 inline-block w-full md:w-auto">
-                                <Button size="lg" className="bg-white text-primary hover:bg-white/90 rounded-2xl md:rounded-[30px] h-14 md:h-20 px-6 md:px-16 font-black text-base md:text-xl shadow-[0_20px_40px_-5px_rgba(255,255,255,0.3)] hover:scale-105 active:scale-95 transition-all w-full md:w-auto">
-                                    Request Security Audit <ArrowRight className="ml-2 md:ml-4 w-5 h-5 md:w-8 md:h-8" />
+                            <Link to="/contact" className="relative z-10 inline-block w-full sm:w-auto">
+                                <Button size="lg" className="bg-white text-primary hover:bg-white/90 rounded-xl sm:rounded-2xl md:rounded-[30px] h-11 sm:h-14 md:h-20 px-5 sm:px-8 md:px-16 font-black text-xs sm:text-base md:text-xl shadow-[0_15px_30px_-5px_rgba(255,255,255,0.3)] hover:scale-105 active:scale-95 transition-all w-full sm:w-auto">
+                                    Request Security Audit <ArrowRight className="ml-2 md:ml-4 w-4 h-4 md:w-8 md:h-8" />
                                 </Button>
                             </Link>
                         </motion.div>

@@ -646,52 +646,52 @@ export default function ProductDetail() {
                       )}
                     </AnimatePresence>
 
-                    <div className="bg-muted/30 dark:bg-card/50 border border-border/50 rounded-3xl p-6 lg:p-10 mb-12 shadow-inner">
-                      <div className="flex flex-col md:flex-row items-center gap-10 lg:gap-20">
+                    <div className="bg-muted/30 dark:bg-card/50 border border-border/50 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-10 mb-8 sm:mb-12 shadow-inner">
+                      <div className="flex flex-col md:flex-row items-center gap-6 sm:gap-10 lg:gap-20">
                         {/* Primary Metric Node */}
-                        <div className="w-full md:w-auto flex flex-col items-center justify-center bg-white dark:bg-card border border-border/60 rounded-3xl px-12 py-10 shadow-xl shadow-black/5 shrink-0">
-                          <p className="text-[10px] font-black text-primary uppercase tracking-[0.4em] mb-4 opacity-70">Global Rating</p>
-                          <div className="flex items-center gap-4 mb-2">
-                            <span className="text-7xl font-black text-foreground tabular-nums leading-none tracking-tighter">{avgRating}</span>
-                            <div className="flex flex-col">
-                              <Star className="w-8 h-8 text-accent fill-current drop-shadow-lg" />
-                              <span className="text-[10px] font-black text-muted-foreground uppercase opacity-40 mt-1 tracking-tighter italic">Out of 5</span>
+                        <div className="w-full md:w-auto flex flex-col items-center justify-center bg-white dark:bg-card border border-border/60 rounded-2xl sm:rounded-3xl p-6 sm:px-12 sm:py-10 shadow-xl shadow-black/5 shrink-0">
+                          <p className="text-[10px] sm:text-[11px] font-black text-primary uppercase tracking-[0.25em] sm:tracking-[0.4em] mb-3 sm:mb-4 opacity-80">Global Rating</p>
+                          <div className="flex items-center justify-center gap-3 sm:gap-4 mb-2">
+                            <span className="text-5xl sm:text-7xl font-black text-foreground tabular-nums leading-none tracking-tight">{avgRating}</span>
+                            <div className="flex flex-col items-start justify-center">
+                              <Star className="w-6 h-6 sm:w-8 sm:h-8 text-accent fill-current drop-shadow-md" />
+                              <span className="text-[9px] sm:text-[10px] font-bold text-muted-foreground uppercase opacity-60 mt-0.5 tracking-wider whitespace-nowrap">Out of 5</span>
                             </div>
                           </div>
-                          <div className="flex gap-1 mb-6 mt-2">
+                          <div className="flex gap-1.5 mb-4 sm:mb-6 mt-1 sm:mt-2">
                             {[1, 2, 3, 4, 5].map(i => (
-                              <Star key={i} className={`w-4 h-4 ${i <= Math.round(Number(avgRating)) ? 'text-accent fill-current' : 'text-muted-foreground/10'}`} />
+                              <Star key={i} className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${i <= Math.round(Number(avgRating)) ? 'text-accent fill-current' : 'text-muted-foreground/20'}`} />
                             ))}
                           </div>
-                          <div className="px-6 py-2 bg-success/10 text-success rounded-full border border-success/20">
-                            <p className="text-[10px] font-black uppercase tracking-widest">{displayReviews.length} Validated Signals</p>
+                          <div className="px-4 py-1.5 sm:px-6 sm:py-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-full border border-emerald-500/20">
+                            <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider sm:tracking-widest whitespace-nowrap">{displayReviews.length} Validated Signals</p>
                           </div>
                         </div>
 
                         {/* Performance Distribution Track */}
-                        <div className="flex-1 w-full flex flex-col justify-center gap-4">
-                          <div className="flex items-center justify-between mb-2">
-                            <p className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.4em] opacity-60 italic">Validation Distribution Index</p>
+                        <div className="flex-1 w-full flex flex-col justify-center gap-3 sm:gap-4">
+                          <div className="flex items-center justify-between mb-1 sm:mb-2">
+                            <p className="text-[10px] sm:text-[11px] font-black text-muted-foreground uppercase tracking-wider sm:tracking-[0.4em] opacity-70 italic">Validation Distribution Index</p>
                             <div className="h-px flex-1 bg-border/40 mx-4 hidden lg:block" />
                           </div>
                           {[5, 4, 3, 2, 1].map((star) => {
                             const count = displayReviews.filter(r => r.rating === star).length;
                             const percentage = displayReviews.length > 0 ? (count / displayReviews.length) * 100 : 0;
                             return (
-                              <div key={star} className="flex items-center gap-6 group">
-                                <div className="flex items-center gap-1.5 w-18 shrink-0">
+                              <div key={star} className="flex items-center gap-2.5 sm:gap-6 group">
+                                <div className="flex items-center gap-1 w-14 sm:w-18 shrink-0">
                                   <span className="text-xs font-black text-foreground uppercase tabular-nums">{star}</span>
-                                  <Star className="w-3.5 h-3.5 text-muted-foreground/30 fill-current" />
-                                  <span className="text-[9px] font-black text-muted-foreground uppercase opacity-40 ml-1 tracking-widest">RANK</span>
+                                  <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-muted-foreground/40 fill-current" />
+                                  <span className="text-[8px] sm:text-[9px] font-black text-muted-foreground uppercase opacity-50 ml-0.5 tracking-wider">RANK</span>
                                 </div>
-                                <div className="flex-1 h-3.5 bg-muted rounded-full overflow-hidden shadow-inner border border-black/5 relative group-hover:scale-[1.01] transition-transform">
+                                <div className="flex-1 h-2.5 sm:h-3.5 bg-muted rounded-full overflow-hidden shadow-inner border border-black/5 relative group-hover:scale-[1.01] transition-transform">
                                   <motion.div
                                     initial={{ width: 0 }}
                                     animate={{ width: `${percentage}%` }}
                                     className={`h-full rounded-full ${star >= 4 ? 'gradient-success shadow-lg' : star === 3 ? 'bg-accent' : 'bg-destructive/60'}`}
                                   />
                                 </div>
-                                <span className="text-xs font-black text-muted-foreground w-12 text-right tabular-nums tracking-tighter">{percentage.toFixed(0)}%</span>
+                                <span className="text-[11px] sm:text-xs font-bold sm:font-black text-muted-foreground w-10 sm:w-12 text-right tabular-nums tracking-tight">{percentage.toFixed(0)}%</span>
                               </div>
                             );
                           })}
@@ -700,7 +700,7 @@ export default function ProductDetail() {
                     </div>
 
                     <div
-                      className="relative group/slider px-4 md:px-12"
+                      className="relative group/slider px-0 sm:px-4 md:px-12"
                       onMouseEnter={() => setIsSliderHovered(true)}
                       onMouseLeave={() => setIsSliderHovered(false)}
                     >
@@ -713,7 +713,7 @@ export default function ProductDetail() {
                         <div className="relative group/slider-container">
                           <div
                             ref={setReviewSliderRef}
-                            className={`flex gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth pb-8 pt-4 ${displayReviews.length <= 1 ? 'justify-center' : 'px-4 md:px-[20%]'}`}
+                            className={`flex gap-4 sm:gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth pb-4 sm:pb-8 pt-2 sm:pt-4 ${displayReviews.length <= 1 ? 'justify-center' : 'px-4 md:px-[20%]'}`}
                           >
                             {displayReviews.map((r, idx) => (
                               <motion.div
@@ -721,45 +721,45 @@ export default function ProductDetail() {
                                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 transition={{ delay: idx * 0.1, duration: 0.5 }}
-                                className="w-[calc(100vw-48px)] sm:w-[450px] md:w-[480px] shrink-0 bg-white dark:bg-card border-2 border-border/10 rounded-[2.5rem] p-8 md:p-10 snap-center hover:border-primary/30 transition-all duration-500 group/card relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.04)] hover:shadow-[0_30px_70px_rgba(0,0,0,0.08)]"
+                                className="w-[calc(100vw-32px)] sm:w-[450px] md:w-[480px] shrink-0 bg-white dark:bg-card border-2 border-border/10 rounded-2xl sm:rounded-[2.5rem] p-5 sm:p-8 md:p-10 snap-center hover:border-primary/30 transition-all duration-500 group/card relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.04)] hover:shadow-[0_30px_70px_rgba(0,0,0,0.08)]"
                               >
                                 <div className="absolute top-0 right-0 p-10 opacity-[0.03] -z-10 group-hover/card:scale-110 group-hover/card:opacity-10 transition-all duration-700">
                                   <Quote className="w-40 h-40 text-primary" />
                                 </div>
 
-                                <div className="flex items-start gap-5 mb-8">
-                                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-foreground text-white flex items-center justify-center text-2xl font-black shrink-0 shadow-xl shadow-primary/20 group-hover/card:scale-110 transition-transform duration-500">
+                                <div className="flex items-start gap-3.5 sm:gap-5 mb-4 sm:mb-8">
+                                  <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary to-primary-foreground text-white flex items-center justify-center text-lg sm:text-2xl font-black shrink-0 shadow-lg sm:shadow-xl shadow-primary/20 group-hover/card:scale-110 transition-transform duration-500">
                                     {r.userName.charAt(0)}
                                   </div>
                                   <div className="flex-1 min-w-0">
-                                    <div className="flex flex-wrap items-center gap-3 mb-1.5">
-                                      <span className="font-black text-base text-foreground uppercase tracking-tight truncate">{r.userName}</span>
-                                      <div className="flex items-center gap-1.5 bg-emerald-600 text-white px-2.5 py-1 rounded-lg text-xs font-black shadow-lg shadow-emerald-500/20 uppercase tabular-nums">
-                                        {r.rating.toFixed(1)} <Star className="w-3.5 h-3.5 fill-current" />
+                                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-1">
+                                      <span className="font-black text-sm sm:text-base text-foreground uppercase tracking-tight truncate">{r.userName}</span>
+                                      <div className="flex items-center gap-1 bg-emerald-600 text-white px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg text-[11px] sm:text-xs font-black shadow-md shadow-emerald-500/20 uppercase tabular-nums">
+                                        {r.rating.toFixed(1)} <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current" />
                                       </div>
                                     </div>
-                                    <div className="flex items-center gap-2 text-emerald-600/70">
-                                      <ShieldCheck className="w-4 h-4" />
-                                      <span className="text-[10px] font-black uppercase tracking-[0.15em] italic">Verified Hub Partner</span>
+                                    <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+                                      <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+                                      <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider sm:tracking-[0.15em] italic whitespace-nowrap truncate">Verified Hub Partner</span>
                                     </div>
                                   </div>
                                   <span className="hidden sm:block text-[11px] text-muted-foreground/40 uppercase tracking-widest font-black tabular-nums">{new Date(r.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}</span>
                                 </div>
 
-                                <div className="relative mb-8">
-                                  <span className="absolute -top-4 -left-2 text-4xl text-primary/10 font-serif">"</span>
-                                  <p className="text-base font-medium text-foreground/80 leading-relaxed italic line-clamp-4 relative z-10 pl-4 border-l-4 border-primary/5 group-hover/card:border-primary/20 transition-all duration-500">
+                                <div className="relative mb-5 sm:mb-8">
+                                  <span className="absolute -top-3 -left-1 text-2xl sm:text-4xl text-primary/10 font-serif">"</span>
+                                  <p className="text-sm sm:text-base font-medium text-foreground/80 leading-relaxed italic line-clamp-4 relative z-10 pl-3 sm:pl-4 border-l-2 sm:border-l-4 border-primary/10 group-hover/card:border-primary/20 transition-all duration-500">
                                     {r.comment}
                                   </p>
                                 </div>
 
-                                <div className="flex items-center justify-between mt-auto pt-6 border-t border-border/40">
-                                  <button className="flex items-center gap-2.5 text-[11px] font-black uppercase tracking-[0.25em] text-muted-foreground/60 hover:text-primary transition-all duration-300 active:scale-95 group/help">
-                                    <ThumbsUp className="w-4.5 h-4.5 group-hover/help:-translate-y-0.5 transition-transform" /> HELPFUL?
+                                <div className="flex items-center justify-between mt-auto pt-4 sm:pt-6 border-t border-border/40">
+                                  <button className="flex items-center gap-1.5 sm:gap-2.5 text-[10px] sm:text-[11px] font-black uppercase tracking-wider sm:tracking-[0.25em] text-muted-foreground/60 hover:text-primary transition-all duration-300 active:scale-95 group/help">
+                                    <ThumbsUp className="w-3.5 h-3.5 sm:w-4.5 sm:h-4.5 group-hover/help:-translate-y-0.5 transition-transform" /> HELPFUL?
                                   </button>
-                                  <div className="flex gap-1.5">
+                                  <div className="flex gap-1">
                                     {[1, 2, 3, 4, 5].map(i => (
-                                      <Star key={i} className={`w-4 h-4 transition-all duration-500 ${i <= r.rating ? 'text-accent fill-current drop-shadow-[0_0_8px_rgba(255,193,7,0.4)]' : 'text-muted-foreground/10'}`} />
+                                      <Star key={i} className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-all duration-500 ${i <= r.rating ? 'text-accent fill-current drop-shadow-[0_0_8px_rgba(255,193,7,0.4)]' : 'text-muted-foreground/10'}`} />
                                     ))}
                                   </div>
                                 </div>
@@ -767,9 +767,9 @@ export default function ProductDetail() {
                             ))}
                           </div>
 
-                          {/* Navigation Overlays - Hidden on single review */}
+                          {/* Navigation Overlays - Desktop Only */}
                           {displayReviews.length > 1 && (
-                            <div className="absolute inset-y-0 -left-6 -right-6 md:-left-12 md:-right-12 pointer-events-none flex items-center justify-between z-40">
+                            <div className="hidden sm:flex absolute inset-y-0 -left-4 -right-4 md:-left-12 md:-right-12 pointer-events-none items-center justify-between z-40">
                               <button
                                 onClick={() => {
                                   if (reviewSliderRef) {
@@ -797,29 +797,57 @@ export default function ProductDetail() {
                             </div>
                           )}
 
-                          {/* Pagination - Dots Owl Style */}
+                          {/* Pagination - Dots & Mobile Controls */}
                           {displayReviews.length > 1 && (
-                            <div className="flex justify-center gap-3 mt-8">
-                              {displayReviews.map((_, i) => (
-                                <button
-                                  key={i}
-                                  onClick={() => {
-                                    if (reviewSliderRef) {
-                                      const scrollWidth = reviewSliderRef.scrollWidth - reviewSliderRef.clientWidth;
-                                      const scrollAmount = reviewSliderRef.clientWidth > 600 ? 500 : reviewSliderRef.clientWidth;
-                                      reviewSliderRef.scrollTo({
-                                        left: Math.min(i * scrollAmount, scrollWidth),
-                                        behavior: 'smooth'
-                                      });
-                                    }
-                                  }}
-                                  className={`transition-all duration-700 rounded-full ${activeSlideIndex === i
-                                    ? "w-10 h-2 bg-primary shadow-lg shadow-primary/20"
-                                    : "w-2 h-2 bg-muted-foreground/20 hover:bg-muted-foreground/40"
-                                    }`}
-                                  aria-label={`Go to slide ${i + 1}`}
-                                />
-                              ))}
+                            <div className="flex items-center justify-center gap-3 sm:gap-4 mt-4 sm:mt-8">
+                              <button
+                                onClick={() => {
+                                  if (reviewSliderRef) {
+                                    const scrollAmount = reviewSliderRef.clientWidth > 600 ? 500 : reviewSliderRef.clientWidth;
+                                    reviewSliderRef.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+                                  }
+                                }}
+                                className="sm:hidden w-8 h-8 rounded-full bg-white dark:bg-card border border-border shadow-md flex items-center justify-center text-foreground hover:text-primary active:scale-90 transition-all"
+                                aria-label="Previous review"
+                              >
+                                <ChevronLeft className="w-4 h-4" />
+                              </button>
+
+                              <div className="flex items-center gap-2">
+                                {displayReviews.map((_, i) => (
+                                  <button
+                                    key={i}
+                                    onClick={() => {
+                                      if (reviewSliderRef) {
+                                        const scrollWidth = reviewSliderRef.scrollWidth - reviewSliderRef.clientWidth;
+                                        const scrollAmount = reviewSliderRef.clientWidth > 600 ? 500 : reviewSliderRef.clientWidth;
+                                        reviewSliderRef.scrollTo({
+                                          left: Math.min(i * scrollAmount, scrollWidth),
+                                          behavior: 'smooth'
+                                        });
+                                      }
+                                    }}
+                                    className={`transition-all duration-500 rounded-full ${activeSlideIndex === i
+                                      ? "w-8 sm:w-10 h-2 bg-primary shadow-md shadow-primary/20"
+                                      : "w-2 h-2 bg-muted-foreground/20 hover:bg-muted-foreground/40"
+                                      }`}
+                                    aria-label={`Go to slide ${i + 1}`}
+                                  />
+                                ))}
+                              </div>
+
+                              <button
+                                onClick={() => {
+                                  if (reviewSliderRef) {
+                                    const scrollAmount = reviewSliderRef.clientWidth > 600 ? 500 : reviewSliderRef.clientWidth;
+                                    reviewSliderRef.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                                  }
+                                }}
+                                className="sm:hidden w-8 h-8 rounded-full bg-white dark:bg-card border border-border shadow-md flex items-center justify-center text-foreground hover:text-primary active:scale-90 transition-all"
+                                aria-label="Next review"
+                              >
+                                <ChevronRight className="w-4 h-4" />
+                              </button>
                             </div>
                           )}
                         </div>
@@ -855,14 +883,14 @@ export default function ProductDetail() {
         </div>
 
         {/* Mobile Floating Action */}
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 p-3 bg-card/95 backdrop-blur-xl border-t border-border/50 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
-          <div className="grid grid-cols-2 gap-3 max-w-full">
-            <Button onClick={handleStartChat} variant="outline" className="h-14 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest border-2 hover:bg-primary/5 hover:text-primary active:scale-95 transition-all flex items-center justify-center">
-              <Zap className="w-4 h-4 mr-1 sm:mr-2 shrink-0" /> CHAT SELLER
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 p-2.5 sm:p-3 bg-card/95 backdrop-blur-xl border-t border-border/50 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-3 max-w-full">
+            <Button onClick={handleStartChat} variant="outline" className="h-11 sm:h-12 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-wider sm:tracking-widest border-2 hover:bg-primary/5 hover:text-primary active:scale-95 transition-all flex items-center justify-center shadow-sm">
+              <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 shrink-0" /> CHAT SELLER
             </Button>
             <Link to={`/inquiry/${product.id}`} className="w-full">
-              <Button variant="hero" className="w-full h-14 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest bg-[#fb641b] hover:bg-[#fb641b]/90 border-none shadow-lg active:scale-95 transition-all flex items-center justify-center">
-                <Send className="w-4 h-4 mr-1 sm:mr-2 shrink-0" /> INQUIRE NOW
+              <Button variant="hero" className="w-full h-11 sm:h-12 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-wider sm:tracking-widest bg-[#fb641b] hover:bg-[#fb641b]/90 border-none shadow-md active:scale-95 transition-all flex items-center justify-center">
+                <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 shrink-0" /> INQUIRE NOW
               </Button>
             </Link>
           </div>

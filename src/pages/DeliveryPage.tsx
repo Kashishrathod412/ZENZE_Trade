@@ -467,52 +467,52 @@ export default function DeliveryPage() {
   if (!user || user.role !== "delivery") {
     return (
       <Layout>
-        <div className="min-h-screen bg-[#F8FAFC] dark:bg-background/95 py-20 px-4 relative overflow-hidden">
+        <div className="min-h-screen bg-[#F8FAFC] dark:bg-background/95 py-8 sm:py-16 md:py-20 px-3 sm:px-6 pb-32 sm:pb-24 relative overflow-hidden">
           {/* Background Decorative Elements */}
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px] -mr-64 -mt-64 animate-pulse" />
           <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[100px] -ml-64 -mb-64 animate-pulse" style={{ animationDelay: '2s' }} />
 
           <div className="container max-w-5xl mx-auto relative z-10">
-            <div className="text-center mb-16">
+            <div className="text-center mb-8 sm:mb-16">
               <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em] mb-6 border border-primary/20"
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em] mb-4 sm:mb-6 border border-primary/20"
               >
-                <Zap className="w-4 h-4" /> Join the Logistics Command
+                <Zap className="w-3.5 h-3.5" /> Join the Logistics Command
               </motion.div>
-              <h1 className="text-5xl md:text-6xl font-black tracking-tight text-foreground mb-6 leading-tight">
+              <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-foreground mb-3 sm:mb-6 leading-tight">
                 Become a <span className="text-gradient">Delivery Titan.</span>
               </h1>
-              <p className="text-lg text-muted-foreground font-medium max-w-2xl mx-auto">
+              <p className="text-xs sm:text-base md:text-lg text-muted-foreground font-medium max-w-2xl mx-auto px-2">
                 Join the world's most advanced logistics network. High-velocity missions, instant settlements, and elite-tier growth.
               </p>
             </div>
 
-            <div className="grid lg:grid-cols-5 gap-12 items-start">
+            <div className="grid lg:grid-cols-5 gap-8 sm:gap-12 items-start">
               {/* Left Side: Onboarding Protocol */}
-              <div className="lg:col-span-2 space-y-8">
-                <div className="p-8 rounded-[2.5rem] bg-slate-900 text-white shadow-2xl relative overflow-hidden group">
+              <div className="lg:col-span-2 space-y-6 sm:space-y-8">
+                <div className="p-6 sm:p-8 rounded-3xl md:rounded-[2.5rem] bg-slate-900 text-white shadow-2xl relative overflow-hidden group">
                   <div className="relative z-10">
-                    <h3 className="text-xl font-black uppercase tracking-tight mb-8 flex items-center gap-3">
-                      <div className="p-2 rounded-xl bg-primary/20"><ShieldCheck className="w-5 h-5 text-primary" /></div>
+                    <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight mb-6 sm:mb-8 flex items-center gap-3">
+                      <div className="p-2 rounded-xl bg-primary/20"><ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-primary" /></div>
                       Operational Protocol
                     </h3>
-                    <div className="space-y-10">
+                    <div className="space-y-6 sm:space-y-10">
                       {[
                         { step: "01", title: "Identity Auth", desc: "Establish your secure digital node in the network." },
                         { step: "02", title: "Node Class", desc: "Select your operational classification (Solo/Corp/Fleet)." },
                         { step: "03", title: "Asset Sync", desc: "Initialize your transport matrix for mission deployment." },
                         { step: "04", title: "Live Link", desc: "Activate your node and begin high-velocity delivery." }
                       ].map((s, i) => (
-                        <div key={i} className="flex gap-6 relative">
-                          {i < 3 && <div className="absolute left-[19px] top-10 bottom-[-40px] w-0.5 bg-gradient-to-b from-primary/50 to-transparent" />}
-                          <div className="w-10 h-10 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center shrink-0 z-10 group-hover:scale-110 transition-transform">
+                        <div key={i} className="flex gap-4 sm:gap-6 relative">
+                          {i < 3 && <div className="absolute left-[17px] sm:left-[19px] top-9 sm:top-10 bottom-[-30px] sm:bottom-[-40px] w-0.5 bg-gradient-to-b from-primary/50 to-transparent" />}
+                          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center shrink-0 z-10 group-hover:scale-110 transition-transform">
                             <span className="text-xs font-black text-primary">{s.step}</span>
                           </div>
                           <div>
-                            <h4 className="text-sm font-black uppercase tracking-widest text-white/90">{s.title}</h4>
-                            <p className="text-[11px] text-white/50 mt-1 font-medium leading-relaxed">{s.desc}</p>
+                            <h4 className="text-xs sm:text-sm font-black uppercase tracking-wider text-white/90">{s.title}</h4>
+                            <p className="text-[11px] text-white/50 mt-0.5 sm:mt-1 font-medium leading-relaxed">{s.desc}</p>
                           </div>
                         </div>
                       ))}
@@ -523,7 +523,7 @@ export default function DeliveryPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 gap-3 sm:gap-4">
                   {[
                     { icon: Zap, title: "Instant Payouts", desc: "Real-time earnings settlements." },
                     { icon: ShieldCheck, title: "Elite Coverage", desc: "Full-spectrum transit protection." }
@@ -533,13 +533,13 @@ export default function DeliveryPage() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.1 }}
-                      className="p-6 rounded-[2rem] bg-white dark:bg-card border border-border shadow-sm hover:border-primary/30 transition-all flex items-center gap-5 group"
+                      className="p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] bg-white dark:bg-card border border-border shadow-sm hover:border-primary/30 transition-all flex items-center gap-4 sm:gap-5 group"
                     >
-                      <div className="w-12 h-12 rounded-2xl bg-muted group-hover:bg-primary/10 flex items-center justify-center transition-colors shrink-0">
-                        <f.icon className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-muted group-hover:bg-primary/10 flex items-center justify-center transition-colors shrink-0">
+                        <f.icon className="w-5 h-5 sm:w-6 sm:h-6 text-muted-foreground group-hover:text-primary transition-colors" />
                       </div>
                       <div>
-                        <h3 className="text-[10px] font-black text-foreground uppercase tracking-widest">{f.title}</h3>
+                        <h3 className="text-[10px] sm:text-xs font-black text-foreground uppercase tracking-wider">{f.title}</h3>
                         <p className="text-[10px] text-muted-foreground font-medium mt-0.5 leading-relaxed">{f.desc}</p>
                       </div>
                     </motion.div>
@@ -551,10 +551,10 @@ export default function DeliveryPage() {
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="lg:col-span-3 bg-white dark:bg-card border border-border rounded-[2.5rem] p-8 md:p-12 shadow-2xl relative overflow-hidden"
+                className="lg:col-span-3 bg-white/95 dark:bg-card/95 backdrop-blur-xl border border-border/80 rounded-3xl md:rounded-[2.5rem] p-5 sm:p-8 md:p-10 shadow-2xl relative overflow-hidden transition-all"
               >
                 {/* Progress Bar */}
-                <div className="absolute top-0 left-0 right-0 h-1.5 bg-muted">
+                <div className="absolute top-0 left-0 right-0 h-1.5 bg-muted/60">
                   <motion.div 
                     initial={{ width: "20%" }}
                     animate={{ width: `${(regStep / 5) * 100}%` }}
@@ -562,23 +562,27 @@ export default function DeliveryPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between mb-12">
+                {/* Step Header */}
+                <div className="flex items-center justify-between mb-6 sm:mb-8 pb-5 sm:pb-6 border-b border-border/50">
                   <div>
-                    <h2 className="text-2xl font-black text-foreground uppercase tracking-tight">Mission Onboarding</h2>
-                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] mt-1">Step {regStep} of 5: {
-                      regStep === 1 ? "Account Setup" : 
-                      regStep === 2 ? "Identity Verify" : 
-                      regStep === 3 ? "Partner Type" : 
-                      regStep === 4 ? "Vehicle Selection" : 
-                      "Final Verification"
-                    }</p>
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-wider mb-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" /> Step {regStep} of 5
+                    </div>
+                    <h2 className="text-xl sm:text-2xl font-black text-foreground uppercase tracking-tight">Mission Onboarding</h2>
+                    <p className="text-[11px] sm:text-xs font-bold text-muted-foreground uppercase tracking-wider mt-0.5">
+                      {regStep === 1 ? "Account Setup & Contact" : 
+                       regStep === 2 ? "Identity & Documents" : 
+                       regStep === 3 ? "Partner Classification" : 
+                       regStep === 4 ? "Transport Matrix Selection" : 
+                       "Final Verification"}
+                    </p>
                   </div>
-                  <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
-                    <span className="text-primary font-black">{regStep}</span>
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/20 flex items-center justify-center shadow-sm shrink-0">
+                    <span className="text-primary font-black text-xs sm:text-sm">{regStep}/5</span>
                   </div>
                 </div>
 
-                <form onSubmit={handleRegister} className="space-y-8 relative min-h-[400px]">
+                <form onSubmit={handleRegister} className="space-y-6 sm:space-y-8 relative">
                   <AnimatePresence mode="wait" custom={direction}>
                     <motion.div
                       key={regStep}
@@ -588,52 +592,66 @@ export default function DeliveryPage() {
                       animate="center"
                       exit="exit"
                       transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                      className="space-y-8"
+                      className="space-y-6"
                     >
                       {regStep === 1 && (
-                        <div className="space-y-6">
-                          <label className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.3em] ml-2">Personal Identity & Contact</label>
-                          <div className="grid grid-cols-1 gap-4">
-                            <div className="relative">
-                              <User className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/40" />
+                        <div className="space-y-4 sm:space-y-5">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                            <label className="text-[11px] font-black text-foreground/80 uppercase tracking-wider">Personal Identity & Contact</label>
+                          </div>
+                          <div className="grid grid-cols-1 gap-3 sm:gap-4">
+                            <div className="relative group">
+                              <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-muted-foreground/60 group-focus-within:text-primary transition-colors" />
                               <input 
                                 type="text" 
                                 required 
                                 value={name} 
                                 onChange={e => setName(e.target.value)} 
-                                placeholder="FULL NAME" 
+                                placeholder="Full Name" 
                                 readOnly={!!user && user.role === 'admin'}
-                                className={`w-full h-16 pl-16 pr-6 rounded-2xl bg-muted/30 border border-transparent focus:bg-white focus:border-primary/30 outline-none transition-all text-sm font-black uppercase tracking-widest shadow-inner ${user?.role === 'admin' ? 'opacity-60 cursor-not-allowed' : ''}`} 
+                                className={`w-full h-13 sm:h-14 pl-12 pr-4 rounded-xl sm:rounded-2xl bg-muted/20 hover:bg-muted/30 focus:bg-background border border-border/70 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all text-xs sm:text-sm font-semibold text-foreground placeholder:text-muted-foreground/50 shadow-sm ${user?.role === 'admin' ? 'opacity-60 cursor-not-allowed' : ''}`} 
                               />
                             </div>
-                            <div className="relative">
-                              <Mail className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/40" />
+                            <div className="relative group">
+                              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-muted-foreground/60 group-focus-within:text-primary transition-colors" />
                               <input 
                                 type="email" 
                                 required 
                                 value={email} 
                                 onChange={e => setEmail(e.target.value)} 
-                                placeholder="EMAIL ADDRESS" 
+                                placeholder="Email Address" 
                                 readOnly={!!user && user.role === 'admin'}
-                                className={`w-full h-16 pl-16 pr-6 rounded-2xl bg-muted/30 border border-transparent focus:bg-white focus:border-primary/30 outline-none transition-all text-sm font-black uppercase tracking-widest shadow-inner ${user?.role === 'admin' ? 'opacity-60 cursor-not-allowed' : ''}`} 
+                                className={`w-full h-13 sm:h-14 pl-12 pr-4 rounded-xl sm:rounded-2xl bg-muted/20 hover:bg-muted/30 focus:bg-background border border-border/70 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all text-xs sm:text-sm font-semibold text-foreground placeholder:text-muted-foreground/50 shadow-sm ${user?.role === 'admin' ? 'opacity-60 cursor-not-allowed' : ''}`} 
                               />
                             </div>
-                            <div className="relative">
-                              <Phone className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/40" />
+                            <div className="relative group">
+                              <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-muted-foreground/60 group-focus-within:text-primary transition-colors" />
                               <input 
                                 type="tel" 
                                 required 
                                 value={phone} 
                                 onChange={e => setPhone(e.target.value)} 
-                                placeholder="MOBILE NUMBER (FOR MISSION COMMS)" 
-                                className="w-full h-16 pl-16 pr-6 rounded-2xl bg-muted/30 border border-transparent focus:bg-white focus:border-primary/30 outline-none transition-all text-sm font-black uppercase tracking-widest shadow-inner" 
+                                placeholder="Mobile Number (e.g. +91 98765 43210)" 
+                                className="w-full h-13 sm:h-14 pl-12 pr-4 rounded-xl sm:rounded-2xl bg-muted/20 hover:bg-muted/30 focus:bg-background border border-border/70 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all text-xs sm:text-sm font-semibold text-foreground placeholder:text-muted-foreground/50 shadow-sm" 
                               />
                             </div>
                             {!user && (
-                              <div className="relative">
-                                <Lock className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/40" />
-                                <input type={showPw ? "text" : "password"} required value={password} onChange={e => setPassword(e.target.value)} placeholder="CREATE ACCESS KEY" className="w-full h-16 pl-16 pr-14 rounded-2xl bg-muted/30 border border-transparent focus:bg-white focus:border-primary/30 outline-none transition-all text-sm font-black uppercase tracking-widest shadow-inner" />
-                                <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-6 top-1/2 -translate-y-1/2 text-muted-foreground">
+                              <div className="relative group">
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-muted-foreground/60 group-focus-within:text-primary transition-colors" />
+                                <input 
+                                  type={showPw ? "text" : "password"} 
+                                  required 
+                                  value={password} 
+                                  onChange={e => setPassword(e.target.value)} 
+                                  placeholder="Create Access Password" 
+                                  className="w-full h-13 sm:h-14 pl-12 pr-12 rounded-xl sm:rounded-2xl bg-muted/20 hover:bg-muted/30 focus:bg-background border border-border/70 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all text-xs sm:text-sm font-semibold text-foreground placeholder:text-muted-foreground/50 shadow-sm" 
+                                />
+                                <button 
+                                  type="button" 
+                                  onClick={() => setShowPw(!showPw)} 
+                                  className="w-8 h-8 rounded-lg hover:bg-muted/80 flex items-center justify-center absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-foreground transition-colors"
+                                >
                                   {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                 </button>
                               </div>
@@ -641,9 +659,9 @@ export default function DeliveryPage() {
                           </div>
 
                           {user && (
-                            <div className="p-4 rounded-2xl bg-primary/5 border border-primary/20 flex items-center gap-4">
-                              <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center text-white font-black text-xs">{user.name.charAt(0)}</div>
-                              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Logged in as {user.role}. Your existing credentials will be upgraded.</p>
+                            <div className="p-4 rounded-2xl bg-primary/5 border border-primary/20 flex items-center gap-3.5">
+                              <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center text-white font-black text-xs shrink-0">{user.name.charAt(0)}</div>
+                              <p className="text-[11px] font-bold text-muted-foreground">Logged in as <span className="text-primary font-black uppercase">{user.role}</span>. Your existing credentials will be upgraded.</p>
                             </div>
                           )}
                         </div>
@@ -651,16 +669,16 @@ export default function DeliveryPage() {
 
                       {/* STEP 2: BIO-METRIC & DOCUMENT CAPTURE */}
                       {regStep === 2 && (
-                        <div className="space-y-12">
-                          <div className="text-center space-y-2">
-                            <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tighter mb-2 bg-gradient-to-br from-foreground to-foreground/50 bg-clip-text text-transparent">Bio-Metric Command</h2>
-                            <p className="text-muted-foreground text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Synchronizing Identity with the Logistics Grid</p>
+                        <div className="space-y-6 sm:space-y-8">
+                          <div className="text-center space-y-1">
+                            <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-foreground">Bio-Metric Command</h3>
+                            <p className="text-muted-foreground text-[10px] sm:text-xs font-bold uppercase tracking-wider opacity-75">Synchronizing Identity with the Logistics Grid</p>
                           </div>
                           
-                          <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-2 gap-12 items-start">
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-start">
                              {/* VIEWPORT & CAPTURE ACTIONS */}
-                             <div className="space-y-8">
-                                <div className="relative aspect-[16/10] bg-slate-950 rounded-[2.5rem] overflow-hidden border-[6px] border-slate-900 shadow-2xl group ring-1 ring-white/5">
+                             <div className="space-y-4 sm:space-y-6">
+                                <div className="relative aspect-[16/10] bg-slate-950 rounded-2xl sm:rounded-[2rem] overflow-hidden border-4 border-slate-900 shadow-xl group ring-1 ring-white/5">
                                    {/* Scanning Overlay */}
                                    {isCapturing && (
                                      <div className="absolute inset-0 z-20 pointer-events-none">
@@ -672,10 +690,10 @@ export default function DeliveryPage() {
                                         />
                                         <div className="absolute inset-0 bg-primary/10 animate-pulse z-10" />
                                         {/* Corner Accents */}
-                                        <div className="absolute top-8 left-8 w-8 h-8 border-t-2 border-l-2 border-primary/50 z-30" />
-                                        <div className="absolute top-8 right-8 w-8 h-8 border-t-2 border-r-2 border-primary/50 z-30" />
-                                        <div className="absolute bottom-8 left-8 w-8 h-8 border-b-2 border-l-2 border-primary/50 z-30" />
-                                        <div className="absolute bottom-8 right-8 w-8 h-8 border-b-2 border-r-2 border-primary/50 z-30" />
+                                        <div className="absolute top-4 left-4 w-6 h-6 border-t-2 border-l-2 border-primary/50 z-30" />
+                                        <div className="absolute top-4 right-4 w-6 h-6 border-t-2 border-r-2 border-primary/50 z-30" />
+                                        <div className="absolute bottom-4 left-4 w-6 h-6 border-b-2 border-l-2 border-primary/50 z-30" />
+                                        <div className="absolute bottom-4 right-4 w-6 h-6 border-b-2 border-r-2 border-primary/50 z-30" />
                                      </div>
                                    )}
 
@@ -689,45 +707,44 @@ export default function DeliveryPage() {
                                        className="w-full h-full object-cover" 
                                      />
                                    ) : (
-                                     <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900">
-                                        <div className="w-20 h-20 rounded-full bg-slate-800 flex items-center justify-center mb-4 border border-white/5 shadow-inner">
-                                          <Camera className="w-8 h-8 text-white/20" />
+                                     <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 p-6 text-center">
+                                        <div className="w-14 h-14 rounded-full bg-slate-800 flex items-center justify-center mb-3 border border-white/5 shadow-inner">
+                                          <Camera className="w-6 h-6 text-white/30" />
                                         </div>
-                                        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/30">Sensor Offline</p>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-white/40">Sensor Standby</p>
                                      </div>
                                    )}
 
                                    {/* Viewport Badge */}
-                                   <div className="absolute top-6 left-6 z-30">
-                                      <div className="px-4 py-2 bg-black/80 backdrop-blur-xl rounded-full border border-white/10 flex items-center gap-2">
+                                   <div className="absolute top-3.5 left-3.5 z-30">
+                                      <div className="px-3 py-1 bg-black/80 backdrop-blur-xl rounded-full border border-white/10 flex items-center gap-2">
                                          <div className={`w-2 h-2 rounded-full ${isCapturing ? 'bg-rose-500 animate-pulse' : 'bg-emerald-500'}`} />
-                                         <p className="text-[9px] font-black text-white uppercase tracking-[0.2em]">{activeCaptureType.replace(/([A-Z])/g, ' $1').trim()} Viewport</p>
+                                         <p className="text-[9px] font-black text-white uppercase tracking-wider">{activeCaptureType.replace(/([A-Z])/g, ' $1').trim()}</p>
                                       </div>
                                    </div>
                                    
                                    <canvas ref={c => { canvasRef.current = c; }} className="hidden" />
                                 </div>
 
-                                 <div className="flex flex-col gap-6">
+                                 <div className="flex flex-col gap-4">
                                    {!isCapturing ? (
-                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
                                        <Button 
                                          type="button" 
                                          onClick={startCamera} 
-                                         className="h-20 rounded-[1.5rem] bg-primary text-white font-black text-xs uppercase tracking-widest shadow-2xl shadow-primary/30 flex items-center justify-center gap-3 hover:scale-[1.02] transition-all active:scale-95 group relative overflow-hidden"
+                                         className="h-13 sm:h-14 rounded-xl sm:rounded-2xl bg-primary text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-primary/20 flex items-center justify-center gap-2.5 hover:scale-[1.01] transition-all active:scale-95 group relative overflow-hidden"
                                        >
-                                          <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500" />
-                                          <Camera className="w-5 h-5 shrink-0" /> 
-                                          <span className="relative z-10">Live Scan</span>
+                                          <Camera className="w-4.5 h-4.5 shrink-0" /> 
+                                          <span>Live Camera</span>
                                        </Button>
                                        <Button 
                                          type="button" 
                                          onClick={() => fileInputRef.current?.click()} 
                                          variant="outline"
-                                         className="h-20 rounded-[1.5rem] border-2 border-primary/20 bg-white dark:bg-slate-900/50 text-primary font-black text-xs uppercase tracking-widest hover:bg-primary/5 hover:border-primary/40 transition-all flex items-center justify-center gap-3 active:scale-95 shadow-lg"
+                                         className="h-13 sm:h-14 rounded-xl sm:rounded-2xl border-2 border-primary/20 bg-white dark:bg-slate-900/50 text-primary font-black text-xs uppercase tracking-wider hover:bg-primary/5 hover:border-primary/40 transition-all flex items-center justify-center gap-2.5 active:scale-95 shadow-sm"
                                        >
-                                          <Upload className="w-5 h-5 shrink-0" /> 
-                                          <span>Manual Upload</span>
+                                          <Upload className="w-4.5 h-4.5 shrink-0" /> 
+                                          <span>Upload File</span>
                                        </Button>
                                        <input 
                                          type="file" 
@@ -738,56 +755,49 @@ export default function DeliveryPage() {
                                        />
                                      </div>
                                    ) : (
-                                     <div className="flex gap-4 w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                     <div className="flex gap-3 w-full animate-in fade-in slide-in-from-bottom-2 duration-300">
                                         <Button 
                                           type="button" 
                                           onClick={capturePhoto} 
-                                          className="flex-1 h-20 rounded-[1.5rem] bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs uppercase tracking-widest shadow-2xl shadow-emerald-500/30 active:scale-95 transition-all flex items-center justify-center gap-3"
+                                          className="flex-1 h-13 sm:h-14 rounded-xl sm:rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-500/30 active:scale-95 transition-all flex items-center justify-center gap-2"
                                         >
-                                          <Zap className="w-5 h-5 fill-white" /> Execute Capture
+                                          <Zap className="w-4 h-4 fill-white" /> Snap Photo
                                         </Button>
                                         <Button 
                                           type="button" 
                                           onClick={stopCamera} 
                                           variant="ghost" 
-                                          className="w-20 h-20 rounded-[1.5rem] border-2 border-rose-500/20 text-rose-500 hover:bg-rose-500/10 hover:border-rose-500/40 flex items-center justify-center transition-all shrink-0"
+                                          className="w-13 h-13 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl border-2 border-rose-500/20 text-rose-500 hover:bg-rose-500/10 hover:border-rose-500/40 flex items-center justify-center transition-all shrink-0"
                                         >
-                                          <X className="w-7 h-7" />
+                                          <X className="w-5 h-5" />
                                         </Button>
                                      </div>
                                    )}
-                                   <div className="flex items-center justify-center gap-4 opacity-40">
-                                      <div className="h-px flex-1 bg-gradient-to-r from-transparent to-muted-foreground/30" />
-                                      <p className="text-[8px] text-muted-foreground font-black uppercase tracking-[0.4em] whitespace-nowrap">
-                                        Secure Encryption Layer Active
-                                      </p>
-                                      <div className="h-px flex-1 bg-gradient-to-l from-transparent to-muted-foreground/30" />
-                                   </div>
                                  </div>
                              </div>
 
                              {/* SELECTION MATRIX */}
-                             <div className="space-y-4">
+                             <div className="space-y-3">
                                 {[
                                   { id: "profilePhoto", label: "Biometric Face Scan", icon: User, desc: "A.I. Enabled Recognition" },
-                                  { id: "govtId", label: "National Identity ID", icon: Fingerprint, desc: "Aadhar / PAN / Passport" },
-                                  { id: "license", label: "Operational Permit", icon: ShieldCheck, desc: "Certified Vehicle License" }
+                                  { id: "govtId", label: "National Identity ID", icon: Fingerprint, desc: "Aadhaar / PAN / Passport" },
+                                  { id: "license", label: "Operational Permit", icon: ShieldCheck, desc: "Driving / Vehicle License" }
                                 ].map((doc) => (
                                   <button
                                     key={doc.id}
                                     type="button"
                                     onClick={() => { setActiveCaptureType(doc.id as any); stopCamera(); }}
-                                    className={`w-full group relative flex items-center gap-6 p-6 rounded-[2rem] border-2 transition-all text-left overflow-hidden ${activeCaptureType === doc.id ? "border-primary bg-primary/5 shadow-2xl scale-[1.02] z-10" : "border-border hover:bg-muted/50"}`}
+                                    className={`w-full group relative flex items-center gap-4 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border-2 transition-all text-left overflow-hidden ${activeCaptureType === doc.id ? "border-primary bg-primary/5 shadow-md scale-[1.01] z-10" : "border-border/70 hover:bg-muted/40"}`}
                                   >
-                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all shrink-0 ${regData.docs[doc.id as keyof typeof regData.docs] ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : (activeCaptureType === doc.id ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-muted text-muted-foreground')}`}>
-                                       {regData.docs[doc.id as keyof typeof regData.docs] ? <CheckCircle2 className="w-7 h-7" /> : <doc.icon className="w-7 h-7" />}
+                                    <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center transition-all shrink-0 ${regData.docs[doc.id as keyof typeof regData.docs] ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20' : (activeCaptureType === doc.id ? 'bg-primary text-white shadow-md shadow-primary/20' : 'bg-muted text-muted-foreground')}`}>
+                                       {regData.docs[doc.id as keyof typeof regData.docs] ? <CheckCircle2 className="w-5 h-5" /> : <doc.icon className="w-5 h-5" />}
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                       <p className="text-xs font-black text-foreground uppercase tracking-tight mb-1">{doc.label}</p>
-                                       <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest opacity-60">{doc.desc}</p>
+                                       <p className="text-xs font-black text-foreground uppercase tracking-tight mb-0.5">{doc.label}</p>
+                                       <p className="text-[10px] text-muted-foreground font-semibold opacity-70 truncate">{doc.desc}</p>
                                     </div>
                                     {regData.docs[doc.id as keyof typeof regData.docs] && (
-                                      <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                                      <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
                                     )}
                                     {activeCaptureType === doc.id && (
                                       <motion.div 
@@ -798,41 +808,45 @@ export default function DeliveryPage() {
                                   </button>
                                 ))}
 
-                                <div className="mt-8 p-8 rounded-[2.5rem] bg-slate-900 text-white relative overflow-hidden group">
+                                <div className="mt-4 p-4 rounded-2xl bg-slate-900 text-white relative overflow-hidden group">
                                    <div className="relative z-10">
-                                      <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-primary mb-2">Protocol Status</h4>
-                                      <p className="text-[11px] font-bold text-white/70 leading-relaxed uppercase tracking-tight">
-                                        Please ensure all documents are original and clearly visible. 
+                                      <h4 className="text-[10px] font-black uppercase tracking-wider text-primary mb-1">Upload Protocol</h4>
+                                      <p className="text-[11px] font-medium text-white/70 leading-relaxed">
+                                        Ensure documents are original, clearly visible, and not expired. 
                                       </p>
                                    </div>
-                                   <Shield className="absolute -bottom-4 -right-4 w-24 h-24 text-white/5 group-hover:rotate-12 transition-transform duration-700" />
+                                   <Shield className="absolute -bottom-3 -right-3 w-16 h-16 text-white/5 group-hover:rotate-12 transition-transform duration-700" />
                                 </div>
                              </div>
                           </div>
                         </div>
                       )}
 
+                      {/* STEP 3: PARTNER TYPE */}
                       {regStep === 3 && (
-                        <div className="space-y-6">
-                          <label className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.3em] ml-2">Partner Classification</label>
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div className="space-y-4 sm:space-y-5">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                            <label className="text-[11px] font-black text-foreground/80 uppercase tracking-wider">Partner Classification</label>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                             {[
-                              { id: "individual", label: "Solo Operator", desc: "Working Individually", icon: User },
+                              { id: "individual", label: "Solo Operator", desc: "Individual Courier", icon: User },
                               { id: "company", label: "Corporate Entity", desc: "Registered Company", icon: Building2 },
-                              { id: "fleet", label: "Fleet Command", desc: "Managing Multiple Nodes", icon: Briefcase }
+                              { id: "fleet", label: "Fleet Command", desc: "Multiple Vehicles", icon: Briefcase }
                             ].map((t) => (
                               <button
                                 key={t.id}
                                 type="button"
                                 onClick={() => setPType(t.id as any)}
-                                className={`flex flex-col items-center justify-center p-8 rounded-3xl border-2 transition-all gap-4 text-center ${pType === t.id ? "border-primary bg-primary/5 shadow-xl scale-[1.02]" : "border-border hover:bg-muted"}`}
+                                className={`flex flex-col items-center justify-center p-5 sm:p-6 rounded-2xl sm:rounded-3xl border-2 transition-all gap-3 text-center ${pType === t.id ? "border-primary bg-primary/5 shadow-lg scale-[1.01]" : "border-border/70 hover:bg-muted/40"}`}
                               >
-                                <div className={`p-4 rounded-2xl ${pType === t.id ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}>
-                                  <t.icon className="w-6 h-6" />
+                                <div className={`p-3.5 rounded-2xl ${pType === t.id ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}>
+                                  <t.icon className="w-5 h-5 sm:w-6 sm:h-6" />
                                 </div>
                                 <div>
-                                  <span className="block text-[10px] font-black uppercase tracking-widest">{t.label}</span>
-                                  <span className="block text-[9px] text-muted-foreground font-medium mt-1 uppercase tracking-tighter">{t.desc}</span>
+                                  <span className="block text-xs font-black uppercase tracking-wider">{t.label}</span>
+                                  <span className="block text-[10px] text-muted-foreground font-medium mt-0.5">{t.desc}</span>
                                 </div>
                               </button>
                             ))}
@@ -840,10 +854,14 @@ export default function DeliveryPage() {
                         </div>
                       )}
 
+                      {/* STEP 4: VEHICLE SELECTION */}
                       {regStep === 4 && (
-                        <div className="space-y-6">
-                          <label className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.3em] ml-2">Transport Matrix Selection</label>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-4 sm:space-y-5">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                            <label className="text-[11px] font-black text-foreground/80 uppercase tracking-wider">Transport Matrix Selection</label>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                             {[
                               { id: "bike", label: "2-Wheeler", desc: "Bike / Scooter / EV", icon: Bike },
                               { id: "car", label: "4-Wheeler", desc: "Car / Sedan / SUV", icon: Car },
@@ -854,14 +872,14 @@ export default function DeliveryPage() {
                                 key={v.id}
                                 type="button"
                                 onClick={() => setVType(v.id as any)}
-                                className={`flex items-center gap-6 p-6 rounded-3xl border-2 transition-all text-left ${vType === v.id ? "border-primary bg-primary/5 shadow-xl scale-[1.02]" : "border-border hover:bg-muted"}`}
+                                className={`flex items-center gap-4 p-4 sm:p-5 rounded-2xl sm:rounded-3xl border-2 transition-all text-left ${vType === v.id ? "border-primary bg-primary/5 shadow-lg scale-[1.01]" : "border-border/70 hover:bg-muted/40"}`}
                               >
-                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${vType === v.id ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}>
-                                  <v.icon className="w-7 h-7" />
+                                <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shrink-0 ${vType === v.id ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}>
+                                  <v.icon className="w-6 h-6" />
                                 </div>
                                 <div>
-                                  <span className="block text-[10px] font-black uppercase tracking-widest">{v.label}</span>
-                                  <span className="block text-[9px] text-muted-foreground font-medium mt-1 uppercase tracking-tighter">{v.desc}</span>
+                                  <span className="block text-xs font-black uppercase tracking-wider">{v.label}</span>
+                                  <span className="block text-[10px] text-muted-foreground font-medium mt-0.5">{v.desc}</span>
                                 </div>
                               </button>
                             ))}
@@ -869,23 +887,27 @@ export default function DeliveryPage() {
                         </div>
                       )}
 
+                      {/* STEP 5: FINAL NODE VERIFICATION */}
                       {regStep === 5 && (
-                        <div className="space-y-6">
-                          <label className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.3em] ml-2">Final Node Verification</label>
-                          <div className="relative">
-                            <Truck className="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground/40" />
+                        <div className="space-y-4 sm:space-y-5">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                            <label className="text-[11px] font-black text-foreground/80 uppercase tracking-wider">Final Node Verification</label>
+                          </div>
+                          <div className="relative group">
+                            <Truck className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/60 group-focus-within:text-primary transition-colors" />
                             <input
                               type="text"
                               value={vNumber}
                               onChange={e => setVNumber(e.target.value.toUpperCase())}
-                              placeholder="ENTER LICENSE PLATE NO."
-                              className="w-full h-20 pl-16 pr-6 rounded-2xl bg-muted/30 border border-transparent focus:bg-white focus:border-primary/30 outline-none transition-all text-lg font-black uppercase tracking-[0.3em] shadow-inner"
+                              placeholder="Vehicle Number (e.g. MH 02 AB 1234)"
+                              className="w-full h-14 sm:h-16 pl-12 pr-4 rounded-xl sm:rounded-2xl bg-muted/20 hover:bg-muted/30 focus:bg-background border border-border/70 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all text-sm sm:text-base font-black uppercase tracking-wider shadow-sm"
                             />
                           </div>
-                          <div className="p-6 rounded-3xl bg-amber-500/5 border border-amber-500/20 flex items-start gap-4">
+                          <div className="p-4 sm:p-5 rounded-2xl bg-amber-500/5 border border-amber-500/20 flex items-start gap-3.5">
                             <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-                            <p className="text-[10px] text-amber-700 dark:text-amber-400 font-bold leading-relaxed uppercase tracking-wider">
-                              By establishing this logistics link, you agree to the Titan Protocol and high-velocity transit regulations.
+                            <p className="text-[11px] text-amber-700 dark:text-amber-400 font-medium leading-relaxed">
+                              By completing registration, you agree to Zenze Trade partner protocols, code of conduct, and high-velocity dispatch terms.
                             </p>
                           </div>
                         </div>
@@ -893,25 +915,26 @@ export default function DeliveryPage() {
                     </motion.div>
                   </AnimatePresence>
 
-                  <div className="flex gap-4 pt-8">
+                  {/* Navigation Buttons */}
+                  <div className="flex items-center gap-3 pt-4 sm:pt-6">
                     {regStep > 1 && (
                       <Button
                         type="button"
                         onClick={prevStep}
                         variant="outline"
-                        className="flex-1 h-16 rounded-2xl border-2 border-border font-black text-[10px] uppercase tracking-[0.2em] hover:bg-muted transition-all"
+                        className="flex-1 h-12 sm:h-14 rounded-xl sm:rounded-2xl border-2 border-border/80 font-black text-xs uppercase tracking-wider hover:bg-muted/80 transition-all"
                       >
-                        Previous Step
+                        Back
                       </Button>
                     )}
                     <Button
                       disabled={isSubmitting || (regStep === 2 && (!regData.docs.profilePhoto || !regData.docs.govtId || !regData.docs.license))}
-                      className={`h-16 rounded-2xl gradient-primary text-white font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all ${regStep === 1 ? 'w-full' : 'flex-[2]'}`}
+                      className={`h-12 sm:h-14 rounded-xl sm:rounded-2xl gradient-primary text-white font-black text-xs sm:text-sm uppercase tracking-wider shadow-xl shadow-primary/25 hover:scale-[1.01] active:scale-[0.98] transition-all ${regStep === 1 ? 'w-full' : 'flex-[2]'}`}
                     >
                       {isSubmitting ? (
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2.5">
                           <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                          Synchronizing...
+                          <span>Synchronizing...</span>
                         </div>
                       ) : (
                         regStep === 5 ? "Complete Registration" : "Continue Registration"

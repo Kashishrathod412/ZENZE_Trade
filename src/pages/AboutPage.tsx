@@ -40,7 +40,7 @@ export default function AboutPage() {
     return (
         <Layout>
             {/* ─── FULL-WIDTH HERO BANNER ─── */}
-            <section className="relative w-full h-[60vh] sm:h-[70vh] lg:h-[85vh] overflow-hidden">
+            <section className="relative w-full min-h-[580px] sm:min-h-[640px] lg:h-[88vh] flex items-center justify-center overflow-hidden py-16 sm:py-24">
                 {/* Banner Image */}
                 <motion.div
                     initial={{ scale: 1.08 }}
@@ -56,41 +56,43 @@ export default function AboutPage() {
                 </motion.div>
 
                 {/* Gradient Overlays */}
-                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-background" />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-background" />
                 <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-transparent" />
 
                 {/* Animated dot grid */}
                 <div className="absolute inset-0 bg-[radial-gradient(#ffffff08_1px,transparent_1px)] [background-size:32px_32px] pointer-events-none" />
 
                 {/* Content */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 relative z-10">
+                <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 sm:px-6 max-w-5xl mx-auto w-full my-auto">
                     <motion.div
                         initial={{ opacity: 0, y: -16 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.7, delay: 0.3 }}
-                        className="inline-flex items-center gap-3 px-5 py-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-md mb-6"
+                        className="inline-flex items-center gap-2 sm:gap-3 px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-md mb-4 sm:mb-6 max-w-full"
                     >
-                        <span className="relative flex h-2 w-2">
+                        <span className="relative flex h-2 w-2 shrink-0">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75" />
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-accent" />
                         </span>
-                        <span className="text-[11px] font-black uppercase tracking-[0.4em] text-white/90">India's #1 Industrial B2B Platform</span>
+                        <span className="text-[9px] sm:text-[11px] font-black uppercase tracking-[0.18em] sm:tracking-[0.35em] text-white/90 truncate">
+                            India's #1 Industrial B2B Platform
+                        </span>
                     </motion.div>
 
                     <motion.h1
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.9, delay: 0.45 }}
-                        className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-heading font-black text-white tracking-tighter leading-[1.05] mb-6 max-w-5xl"
+                        className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-heading font-black text-white tracking-tight leading-[1.1] mb-4 sm:mb-6 max-w-5xl"
                     >
-                        About <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent via-primary to-accent bg-[length:200%] animate-[shimmer_3s_linear_infinite]">ZenzeTrade</span>
+                        About <span className="inline-block pr-1 sm:pr-2 text-transparent bg-clip-text bg-gradient-to-r from-accent via-primary to-accent">ZenzeTrade</span>
                     </motion.h1>
 
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 0.6 }}
-                        className="text-base sm:text-lg md:text-xl text-white/70 font-medium max-w-2xl leading-relaxed"
+                        className="text-xs sm:text-base md:text-xl text-white/80 font-medium max-w-2xl leading-relaxed px-2 sm:px-0"
                     >
                         Architecting the world's most advanced industrial commerce matrix — connecting verified manufacturers, suppliers, and buyers across India and beyond.
                     </motion.p>
@@ -100,16 +102,16 @@ export default function AboutPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 0.75 }}
-                        className="flex flex-wrap items-center justify-center gap-3 mt-8"
+                        className="grid grid-cols-3 gap-2 sm:gap-3.5 max-w-md sm:max-w-2xl mx-auto w-full mt-6 sm:mt-8 px-1"
                     >
                         {[
                             { val: "10,000+", label: "Elite Suppliers" },
                             { val: "190+", label: "Regional Hubs" },
                             { val: "$50B+", label: "Trade Flow" },
                         ].map((s, i) => (
-                            <div key={i} className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20">
-                                <span className="text-xl font-black text-white tracking-tighter">{s.val}</span>
-                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60">{s.label}</span>
+                            <div key={i} className="flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-2 px-2.5 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-white/10 dark:bg-black/30 backdrop-blur-md border border-white/20 shadow-lg">
+                                <span className="text-sm sm:text-xl font-black text-white tracking-tight whitespace-nowrap">{s.val}</span>
+                                <span className="text-[7.5px] sm:text-[10px] font-bold sm:font-black uppercase tracking-wider text-white/70 text-center whitespace-nowrap">{s.label}</span>
                             </div>
                         ))}
                     </motion.div>
@@ -119,14 +121,14 @@ export default function AboutPage() {
                 <motion.div
                     animate={{ y: [0, 8, 0] }}
                     transition={{ duration: 2, repeat: Infinity }}
-                    className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10"
+                    className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 hidden xs:flex flex-col items-center gap-1.5 sm:gap-2 z-10 pointer-events-none"
                 >
-                    <span className="text-[9px] font-black uppercase tracking-[0.3em] text-white/40">Scroll to explore</span>
-                    <div className="w-5 h-8 rounded-full border border-white/20 flex items-start justify-center p-1">
+                    <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.25em] text-white/40">Scroll to explore</span>
+                    <div className="w-4 h-7 sm:w-5 sm:h-8 rounded-full border border-white/20 flex items-start justify-center p-1">
                         <motion.div
-                            animate={{ y: [0, 12, 0] }}
+                            animate={{ y: [0, 10, 0] }}
                             transition={{ duration: 1.5, repeat: Infinity }}
-                            className="w-1.5 h-1.5 rounded-full bg-white/60"
+                            className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-white/60"
                         />
                     </div>
                 </motion.div>

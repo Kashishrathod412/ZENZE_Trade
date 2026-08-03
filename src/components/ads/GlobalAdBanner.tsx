@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { getAds, getProducts, getOrCreateChatRoom, type Ad, type Product } from "@/lib/storage";
-import { X, ExternalLink, Sparkles, MessageSquare, SkipForward } from "lucide-react";
+import { getAds, getProducts, getOrCreateChatRoom, type Ad } from "@/lib/storage";
+import { X, ExternalLink, MessageSquare, SkipForward, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -14,6 +14,7 @@ export default function GlobalAdBanner() {
   const [activeAds, setActiveAds] = useState<Ad[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
+  const [isMinimized, setIsMinimized] = useState(false);
 
   useEffect(() => {
     const fetchAds = async () => {
@@ -92,14 +93,12 @@ export default function GlobalAdBanner() {
       if (currentAd && !(currentAd as any).videoUrl) {
         const timer = setTimeout(() => {
           handleSkip();
-        }, 3000); // Hide or skip after 3 seconds
+        }, 4000); // 4 seconds per ad
         return () => clearTimeout(timer);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentIndex, activeAds.length]);
-
-
 
   const handleStartChat = (ad: Ad) => {
     if (!user) {
@@ -107,7 +106,7 @@ export default function GlobalAdBanner() {
       navigate("/login");
       return;
     }
-    const room = getOrCreateChatRoom(user.id, ad.sellerId, {
+    getOrCreateChatRoom(user.id, ad.sellerId, {
       type: "ad",
       id: ad.id,
       title: ad.headline || "Ad Inquiry"
@@ -124,147 +123,286 @@ export default function GlobalAdBanner() {
     <AnimatePresence mode="wait">
       {isVisible && activeAds.length > 0 && (
         <motion.div
-          key="ad-banner"
-          initial={{ y: 50, opacity: 0, scale: 0.9, x: 20 }}
-          animate={{ y: 0, opacity: 1, scale: 1, x: 0 }}
-          exit={{ y: 50, opacity: 0, scale: 0.9, x: 20 }}
-          transition={{ type: "spring", stiffness: 300, damping: 25 }}
-          className="fixed bottom-[220px] right-4 md:right-8 z-[6000] w-[calc(100%-2rem)] xs:w-[380px] md:w-[440px] pointer-events-auto"
+          key={isMinimized ? "ad-minimized" : `ad-expanded-${currentIndex}`}
+          initial={{ y: 30, opacity: 0, scale: 0.95 }}
+          animate={{ y: 0, opacity: 1, scale: 1 }}
+          exit={{ y: 30, opacity: 0, scale: 0.95 }}
+          transition={{ type: "spring", stiffness: 350, damping: 28 }}
+          className={
+            isMinimized
+              ? "fixed bottom-3 left-3 z-[5200] pointer-events-auto"
+              : "fixed bottom-3 left-3 right-3 sm:left-auto sm:right-6 sm:bottom-4 md:bottom-24 md:right-8 sm:w-[380px] md:w-[420px] z-[5200] pointer-events-auto"
+          }
         >
-          <div className="relative group bg-white/90 dark:bg-black/90 backdrop-blur-2xl border border-white/20 rounded-3xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] overflow-hidden transition-all duration-500 hover:scale-[1.02]">
-            {/* Animated 'Video' Background */}
-            <div className="absolute inset-0 z-0">
-              <motion.div
-                animate={{
-                  background: [
-                    "radial-gradient(circle at 0% 0%, rgba(124,58,237,0.15) 0%, transparent 50%)",
-                    "radial-gradient(circle at 100% 100%, rgba(124,58,237,0.15) 0%, transparent 50%)",
-                    "radial-gradient(circle at 0% 100%, rgba(124,58,237,0.15) 0%, transparent 50%)",
-                    "radial-gradient(circle at 100% 0%, rgba(124,58,237,0.15) 0%, transparent 50%)"
-                  ]
-                }}
-                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-0"
-              />
-              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.05]" />
-            </div>
-
-            {/* Top Bar with Live Indicator */}
-            <div className="relative z-10 px-4 py-2 bg-black/5 dark:bg-white/5 border-b border-white/10 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
-                </span>
-                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-rose-500">Live Trade Feed</span>
-              </div>
-              <div className="flex items-center gap-3">
-                {activeAds.length > 1 && (
-                  <button onClick={handleSkip} className="text-[9px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors">
-                    Skip <SkipForward className="w-3 h-3" />
-                  </button>
-                )}
-                <button onClick={() => setIsVisible(false)} className="text-muted-foreground hover:text-foreground transition-colors">
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-
-            {/* Content Area & Actions */}
-            <motion.div 
-              key={`content-${currentIndex}`}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.3 }}
-              className="relative z-10 p-4 pt-0 flex flex-col gap-4"
+          {isMinimized ? (
+            /* Minimized Sleek Pill Badge */
+            <div
+              onClick={() => setIsMinimized(false)}
+              className="group flex items-center gap-2 px-3 py-2 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl border border-primary/30 rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.25)] cursor-pointer hover:scale-105 transition-all"
             >
-              {(currentAd as any).videoUrl ? (
-                <div className="relative w-full overflow-hidden rounded-2xl shadow-lg border border-border/20 bg-black mt-2">
-                  <video src={(currentAd as any).videoUrl} autoPlay muted playsInline onEnded={handleSkip} className="w-full h-[240px] object-cover opacity-80" />
-                  
-                  {/* Dark gradient overlay for text readability */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none" />
-
-                  {/* Thumbnail, Text & Actions Overlay */}
-                  <div className="absolute bottom-0 left-0 right-0 p-4 flex gap-3 items-end z-10">
-                    <div className="w-12 h-12 shrink-0 rounded-xl bg-white/10 flex items-center justify-center text-2xl shadow-2xl backdrop-blur-md border border-white/20 overflow-hidden">
-                      {adProduct ? adProduct.image : "🚀"}
-                    </div>
-                    <div className="flex-1 min-w-0 pb-0.5">
-                      <h4 className="text-[13px] font-black uppercase tracking-tight text-white line-clamp-1 mb-1 drop-shadow-md">
-                        {currentAd.headline || "Zenze Premium Partner"}
-                      </h4>
-                      <p className="text-[10px] text-white/90 font-medium line-clamp-2 leading-snug drop-shadow-md">
-                        {currentAd.message || "Global trade synchronization active. Connect for industrial procurement mission."}
-                      </p>
-                    </div>
-
-                    {/* Icon-only Actions */}
-                    <div className="flex items-center gap-2 shrink-0 pb-0.5">
-                      <Button
-                        onClick={() => handleStartChat(currentAd)}
-                        className="w-9 h-9 p-0 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-all shadow-lg"
-                        title="Instant Chat"
-                      >
-                        <MessageSquare className="w-4 h-4 text-white" />
-                      </Button>
-                      <Link to={currentAd.productId ? `/products/${currentAd.productId}` : '/products'} className="shrink-0" title="View Specs">
-                        <Button className="w-9 h-9 p-0 rounded-xl bg-primary hover:bg-primary/90 text-white flex items-center justify-center shadow-xl shadow-primary/30 hover:translate-y-[-2px] transition-all">
-                          <ExternalLink className="w-4 h-4" />
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <div className="flex gap-4 mt-2">
-                    <div className="w-16 h-16 shrink-0 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center text-4xl shadow-xl group-hover:rotate-3 transition-transform duration-500 overflow-hidden">
-                      {adProduct ? adProduct.image : "🚀"}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-[14px] font-black uppercase tracking-tight text-foreground line-clamp-1 mb-1">
-                        {currentAd.headline || "Zenze Premium Partner"}
-                      </h4>
-                      <p className="text-[11px] text-muted-foreground font-medium line-clamp-2 leading-relaxed opacity-90">
-                        {currentAd.message || "Global trade synchronization active. Connect for industrial procurement mission."}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Tactical Actions */}
-                  <div className="flex items-center gap-2">
-                    <Button
-                      onClick={() => handleStartChat(currentAd)}
-                      className="flex-1 h-10 rounded-xl bg-white dark:bg-white/5 border border-white/10 hover:bg-white/10 text-foreground font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all"
-                    >
-                      <MessageSquare className="w-3.5 h-3.5 text-primary" /> Instant Chat
-                    </Button>
-                    <Link to={currentAd.productId ? `/products/${currentAd.productId}` : '/products'} className="flex-1">
-                      <Button className="w-full h-10 rounded-xl gradient-primary text-white font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl shadow-primary/20 hover:translate-y-[-2px] transition-all">
-                        View Specs <ExternalLink className="w-3.5 h-3.5" />
-                      </Button>
-                    </Link>
-                  </div>
-                </>
-              )}
-            </motion.div>
-
-            {/* Interactive Progress Bar */}
-            {!(currentAd as any).videoUrl && (
-              <div className="absolute bottom-0 left-0 h-0.5 bg-primary/30 w-full overflow-hidden">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+              </span>
+              <span className="text-base leading-none">{adProduct ? adProduct.image : "🚀"}</span>
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black uppercase tracking-tight text-foreground max-w-[130px] truncate leading-tight">
+                  {currentAd.headline || "Promoted Feed"}
+                </span>
+                <span className="text-[8px] font-bold uppercase tracking-widest text-primary leading-tight">
+                  Live Trade Feed
+                </span>
+              </div>
+              <ChevronUp className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors ml-0.5" />
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsVisible(false);
+                }}
+                className="w-4 h-4 rounded-full flex items-center justify-center hover:bg-black/10 dark:hover:bg-white/10 text-muted-foreground hover:text-foreground transition-colors ml-1"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          ) : (
+            /* Full Banner Card - Optimized for Mobile & Desktop */
+            <div className="relative group bg-white/95 dark:bg-zinc-950/95 backdrop-blur-2xl border border-border/80 dark:border-white/15 rounded-2xl md:rounded-3xl shadow-[0_15px_40px_-10px_rgba(0,0,0,0.35)] dark:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] overflow-hidden transition-all duration-300">
+              {/* Animated Glowing Gradient Background */}
+              <div className="absolute inset-0 z-0 pointer-events-none">
                 <motion.div
-                  key={`progress-${currentIndex}`}
-                  initial={{ x: "-100%" }}
-                  animate={{ x: "0%" }}
-                  transition={{ duration: 3, ease: "linear" }}
-                  className="w-full h-full gradient-primary"
+                  animate={{
+                    background: [
+                      "radial-gradient(circle at 0% 0%, rgba(124,58,237,0.12) 0%, transparent 50%)",
+                      "radial-gradient(circle at 100% 100%, rgba(124,58,237,0.12) 0%, transparent 50%)",
+                      "radial-gradient(circle at 0% 100%, rgba(124,58,237,0.12) 0%, transparent 50%)",
+                      "radial-gradient(circle at 100% 0%, rgba(124,58,237,0.12) 0%, transparent 50%)"
+                    ]
+                  }}
+                  transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                  className="absolute inset-0"
                 />
               </div>
-            )}
-          </div>
+
+              {/* Slim Header Bar */}
+              <div className="relative z-10 px-3 md:px-4 py-1.5 md:py-2 bg-black/[0.03] dark:bg-white/[0.03] border-b border-border/40 dark:border-white/10 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                  </span>
+                  <span className="text-[9px] font-black uppercase tracking-[0.2em] text-rose-500">
+                    Live Trade Feed
+                  </span>
+                  {activeAds.length > 1 && (
+                    <span className="text-[9px] font-bold text-muted-foreground opacity-60">
+                      ({currentIndex + 1}/{activeAds.length})
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  {activeAds.length > 1 && (
+                    <button
+                      onClick={handleSkip}
+                      className="text-[9px] font-black uppercase tracking-wider text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors px-1 py-0.5"
+                      title="Skip to next ad"
+                    >
+                      Skip <SkipForward className="w-3 h-3" />
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setIsMinimized(true)}
+                    className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                    title="Minimize"
+                  >
+                    <ChevronDown className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => setIsVisible(false)}
+                    className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                    title="Close"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Main Content Area */}
+              <div className="relative z-10 p-2.5 md:p-4">
+                {(currentAd as any).videoUrl ? (
+                  /* Video Ad View */
+                  <div>
+                    {/* Mobile Video Compact View */}
+                    <div className="md:hidden flex items-center gap-2.5">
+                      <div className="relative w-16 h-12 shrink-0 rounded-xl overflow-hidden bg-black shadow-md border border-border/30">
+                        <video
+                          src={(currentAd as any).videoUrl}
+                          autoPlay
+                          muted
+                          playsInline
+                          onEnded={handleSkip}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-[12px] font-black uppercase tracking-tight text-foreground truncate leading-tight">
+                          {currentAd.headline || "Zenze Premium Partner"}
+                        </h4>
+                        <p className="text-[10px] text-muted-foreground truncate leading-tight mt-0.5">
+                          {currentAd.message || "Global trade synchronization active."}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <Button
+                          size="sm"
+                          onClick={() => handleStartChat(currentAd)}
+                          className="h-8 w-8 p-0 rounded-xl bg-secondary hover:bg-secondary/80 text-foreground"
+                          title="Instant Chat"
+                        >
+                          <MessageSquare className="w-3.5 h-3.5 text-primary" />
+                        </Button>
+                        <Link to={currentAd.productId ? `/products/${currentAd.productId}` : '/products'}>
+                          <Button
+                            size="sm"
+                            className="h-8 px-2.5 rounded-xl gradient-primary text-white font-black text-[10px] uppercase tracking-wider flex items-center gap-1 shadow-md shadow-primary/20"
+                          >
+                            Specs <ExternalLink className="w-3 h-3" />
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+
+                    {/* Desktop Video Full View */}
+                    <div className="hidden md:block relative w-full overflow-hidden rounded-2xl shadow-lg border border-border/20 bg-black">
+                      <video
+                        src={(currentAd as any).videoUrl}
+                        autoPlay
+                        muted
+                        playsInline
+                        onEnded={handleSkip}
+                        className="w-full h-[180px] object-cover opacity-85"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent pointer-events-none" />
+                      <div className="absolute bottom-0 left-0 right-0 p-3 flex gap-2.5 items-end z-10">
+                        <div className="w-10 h-10 shrink-0 rounded-xl bg-white/10 flex items-center justify-center text-xl shadow-xl backdrop-blur-md border border-white/20 overflow-hidden">
+                          {adProduct ? adProduct.image : "🚀"}
+                        </div>
+                        <div className="flex-1 min-w-0 pb-0.5">
+                          <h4 className="text-[12px] font-black uppercase tracking-tight text-white line-clamp-1 drop-shadow">
+                            {currentAd.headline || "Zenze Premium Partner"}
+                          </h4>
+                          <p className="text-[10px] text-white/80 font-medium line-clamp-1 leading-snug drop-shadow">
+                            {currentAd.message || "Global trade synchronization active."}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <Button
+                            size="sm"
+                            onClick={() => handleStartChat(currentAd)}
+                            className="h-8 w-8 p-0 rounded-lg bg-white/15 backdrop-blur-sm border border-white/20 hover:bg-white/30 text-white"
+                            title="Instant Chat"
+                          >
+                            <MessageSquare className="w-3.5 h-3.5 text-white" />
+                          </Button>
+                          <Link to={currentAd.productId ? `/products/${currentAd.productId}` : '/products'}>
+                            <Button
+                              size="sm"
+                              className="h-8 px-2.5 rounded-lg bg-primary hover:bg-primary/90 text-white font-black text-[10px] uppercase tracking-wider flex items-center gap-1 shadow-lg shadow-primary/30"
+                            >
+                              Specs <ExternalLink className="w-3 h-3" />
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  /* Standard Non-Video Ad View */
+                  <div>
+                    {/* Mobile Compact Horizontal Row */}
+                    <div className="md:hidden flex items-center gap-2.5">
+                      <div className="w-10 h-10 shrink-0 rounded-xl bg-gradient-to-br from-primary/15 to-accent/15 border border-primary/20 flex items-center justify-center text-2xl shadow-sm overflow-hidden">
+                        {adProduct ? adProduct.image : "🚀"}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-[12px] font-black uppercase tracking-tight text-foreground truncate leading-tight">
+                          {currentAd.headline || "Zenze Premium Partner"}
+                        </h4>
+                        <p className="text-[10px] text-muted-foreground truncate leading-tight mt-0.5">
+                          {currentAd.message || "Global trade synchronization active."}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <Button
+                          size="sm"
+                          onClick={() => handleStartChat(currentAd)}
+                          className="h-8 w-8 p-0 rounded-xl bg-secondary hover:bg-secondary/80 text-foreground"
+                          title="Instant Chat"
+                        >
+                          <MessageSquare className="w-3.5 h-3.5 text-primary" />
+                        </Button>
+                        <Link to={currentAd.productId ? `/products/${currentAd.productId}` : '/products'}>
+                          <Button
+                            size="sm"
+                            className="h-8 px-2.5 rounded-xl gradient-primary text-white font-black text-[10px] uppercase tracking-wider flex items-center gap-1 shadow-md shadow-primary/20"
+                          >
+                            Specs <ExternalLink className="w-3 h-3" />
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+
+                    {/* Desktop Rich Layout */}
+                    <div className="hidden md:flex flex-col gap-3">
+                      <div className="flex gap-3.5 items-center">
+                        <div className="w-13 h-13 shrink-0 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center text-3xl shadow-md border border-primary/10 overflow-hidden">
+                          {adProduct ? adProduct.image : "🚀"}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-[13px] font-black uppercase tracking-tight text-foreground line-clamp-1">
+                            {currentAd.headline || "Zenze Premium Partner"}
+                          </h4>
+                          <p className="text-[11px] text-muted-foreground font-medium line-clamp-2 leading-relaxed opacity-90 mt-0.5">
+                            {currentAd.message || "Global trade synchronization active. Connect for industrial procurement mission."}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Desktop Buttons */}
+                      <div className="flex items-center gap-2 pt-1">
+                        <Button
+                          onClick={() => handleStartChat(currentAd)}
+                          className="flex-1 h-9 rounded-xl bg-secondary hover:bg-secondary/80 text-foreground font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all"
+                        >
+                          <MessageSquare className="w-3.5 h-3.5 text-primary" /> Instant Chat
+                        </Button>
+                        <Link to={currentAd.productId ? `/products/${currentAd.productId}` : '/products'} className="flex-1">
+                          <Button className="w-full h-9 rounded-xl gradient-primary text-white font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 shadow-lg shadow-primary/20 hover:translate-y-[-1px] transition-all">
+                            View Specs <ExternalLink className="w-3.5 h-3.5" />
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Interactive Progress Bar */}
+              {!(currentAd as any).videoUrl && (
+                <div className="absolute bottom-0 left-0 h-0.5 bg-primary/20 w-full overflow-hidden">
+                  <motion.div
+                    key={`progress-${currentIndex}`}
+                    initial={{ x: "-100%" }}
+                    animate={{ x: "0%" }}
+                    transition={{ duration: 4, ease: "linear" }}
+                    className="w-full h-full gradient-primary"
+                  />
+                </div>
+              )}
+            </div>
+          )}
         </motion.div>
       )}
     </AnimatePresence>
   );
 }
+

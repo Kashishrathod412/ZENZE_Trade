@@ -504,7 +504,7 @@ export default function Blog() {
                                 className="space-y-4"
                             >
                                 <h1 className="text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter leading-[0.85] text-white drop-shadow-[0_15px_40px_rgba(0,0,0,0.6)]">
-                                    The <span className="bg-gradient-to-r from-primary via-white to-accent bg-clip-text text-transparent italic filter drop-shadow-[0_4px_15px_rgba(139,92,246,0.4)]">ZenzeTrade</span> <br />
+                                    The <span className="inline-block pr-3 md:pr-5 bg-gradient-to-r from-primary via-white to-accent bg-clip-text text-transparent italic filter drop-shadow-[0_4px_15px_rgba(139,92,246,0.4)]">ZenzeTrade</span> <br />
                                     Perspective.
                                 </h1>
                                 <p className="text-lg md:text-2xl text-white/60 font-medium max-w-2xl mx-auto tracking-tight leading-relaxed">
@@ -569,66 +569,76 @@ export default function Blog() {
                 </section>
 
                 {/* ══ ELITE CATEGORY SELECTION MATRIX ══ */}
-                <section className="container-wide py-16">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="flex overflow-x-auto no-scrollbar scroll-smooth whitespace-nowrap gap-4 pb-4 px-4 md:px-0 md:flex-wrap md:justify-center md:pb-0"
-                    >
-                        {categories.map(({ label, icon: Icon, count }, i) => (
-                            <motion.button
-                                key={label}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: i * 0.05 }}
-                                onClick={() => setSelectedCategory(label)}
-                                className={`group relative flex items-center gap-4 px-6 py-4 rounded-[1.5rem] transition-all duration-500 overflow-hidden shrink-0
-                                    ${selectedCategory === label
-                                        ? "bg-primary text-white shadow-[0_20px_50px_-10px_rgba(139,92,246,0.5)] scale-105 border-b-2 border-white/20"
-                                        : "bg-white/5 border border-white/10 text-muted-foreground hover:bg-white/10 hover:border-white/20 hover:text-foreground"
-                                    }`}
-                            >
-                                {/* Active Background Layer */}
-                                {selectedCategory === label && (
-                                    <motion.div
-                                        layoutId="activeCategory"
-                                        className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-accent pointer-events-none"
-                                        initial={false}
-                                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                                    />
-                                )}
+                <section className="container-wide py-8 sm:py-14">
+                    <div className="relative">
+                        {/* Left & Right subtle edge fade indicators for horizontal scroll on mobile */}
+                        <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-background to-transparent z-20 md:hidden" />
+                        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent z-20 md:hidden" />
 
-                                <div className="relative z-10 flex items-center gap-3">
-                                    <div className={`p-2 rounded-xl transition-colors ${selectedCategory === label ? "bg-white/20" : "bg-primary/10 group-hover:bg-primary/20"}`}>
-                                        <Icon className={`w-5 h-5 ${selectedCategory === label ? "text-white" : "text-primary"}`} />
-                                    </div>
-
-                                    <div className="flex flex-col items-start">
-                                        <span className="text-[10px] font-black uppercase tracking-[0.2em] leading-none mb-1">
-                                            {label}
-                                        </span>
-                                        <div className="flex items-center gap-1.5 opacity-40">
-                                            <div className="w-1 h-1 rounded-full bg-current" />
-                                            <span className="text-[8px] font-bold uppercase tracking-widest">Target segment</span>
-                                        </div>
-                                    </div>
-
-                                    {/* Tactical Node Indicator */}
-                                    <div className={`ml-4 px-2.5 py-1.5 rounded-[0.75rem] text-[10px] font-black tabular-nums transition-all
-                                        ${selectedCategory === label
-                                            ? "bg-black/20 text-white"
-                                            : "bg-white/5 text-primary"
+                        <motion.div
+                            initial={{ opacity: 0, y: 15 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="flex overflow-x-auto no-scrollbar scroll-smooth whitespace-nowrap gap-2.5 sm:gap-3.5 px-4 sm:px-6 md:px-0 py-2 md:flex-wrap md:justify-center touch-pan-x"
+                        >
+                            {categories.map(({ label, icon: Icon, count }, i) => {
+                                const isActive = selectedCategory === label;
+                                return (
+                                    <motion.button
+                                        key={label}
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: i * 0.04 }}
+                                        onClick={() => setSelectedCategory(label)}
+                                        className={`group relative flex items-center gap-2.5 sm:gap-3.5 px-3.5 sm:px-5 py-2.5 sm:py-3.5 rounded-2xl transition-all duration-300 overflow-hidden shrink-0 border ${
+                                            isActive
+                                                ? "bg-gradient-to-r from-primary via-primary to-accent text-white shadow-lg shadow-primary/25 border-white/20 ring-1 ring-white/20"
+                                                : "bg-card/70 hover:bg-card border-border/70 dark:border-white/10 text-muted-foreground hover:text-foreground hover:border-primary/30 shadow-sm"
                                         }`}
                                     >
-                                        {count.toString().padStart(2, '0')}
-                                    </div>
-                                </div>
+                                        {/* Active Background Layer */}
+                                        {isActive && (
+                                            <motion.div
+                                                layoutId="activeCategory"
+                                                className="absolute inset-0 bg-gradient-to-r from-primary via-primary to-accent pointer-events-none"
+                                                initial={false}
+                                                transition={{ type: "spring", bounce: 0.18, duration: 0.5 }}
+                                            />
+                                        )}
 
-                                {/* Hover Shimmer Effect */}
-                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-                            </motion.button>
-                        ))}
-                    </motion.div>
+                                        <div className="relative z-10 flex items-center gap-2.5 sm:gap-3">
+                                            <div className={`p-1.5 sm:p-2 rounded-xl transition-colors shrink-0 ${
+                                                isActive ? "bg-white/20 text-white" : "bg-primary/10 text-primary group-hover:bg-primary/20"
+                                            }`}>
+                                                <Icon className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+                                            </div>
+
+                                            <div className="flex flex-col items-start text-left">
+                                                <span className="text-xs sm:text-xs font-black uppercase tracking-wider leading-tight">
+                                                    {label}
+                                                </span>
+                                                <div className="flex items-center gap-1 opacity-60 mt-0.5">
+                                                    <span className="w-1 h-1 rounded-full bg-current" />
+                                                    <span className="text-[8px] font-bold uppercase tracking-wider">Segment</span>
+                                                </div>
+                                            </div>
+
+                                            {/* Node Counter Badge */}
+                                            <div className={`ml-1.5 sm:ml-2 px-2 py-0.5 rounded-lg text-[9px] sm:text-[10px] font-black tabular-nums transition-colors shrink-0 ${
+                                                isActive
+                                                    ? "bg-black/25 text-white"
+                                                    : "bg-muted dark:bg-white/10 text-muted-foreground group-hover:text-foreground"
+                                            }`}>
+                                                {count.toString().padStart(2, '0')}
+                                            </div>
+                                        </div>
+
+                                        {/* Hover Shimmer Effect */}
+                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 pointer-events-none" />
+                                    </motion.button>
+                                );
+                            })}
+                        </motion.div>
+                    </div>
                 </section>
 
                 {/* ══ FEATURED POST ══ */}
