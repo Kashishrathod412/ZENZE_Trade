@@ -158,18 +158,18 @@ export default function InteractiveEarth({ onSelectCountry }: InteractiveEarthPr
       </div>
 
       {/* Operation HUD Overlays */}
-      <div className="absolute bottom-6 sm:bottom-10 right-6 sm:right-10 flex items-center gap-6 sm:gap-10 bg-black/60 backdrop-blur-3xl border border-white/10 px-8 sm:px-14 py-4 sm:py-8 rounded-[3.5rem] shadow-2xl z-40">
-         <div className="text-right">
-            <p className="text-[10px] sm:text-[12px] font-black text-blue-400 uppercase tracking-[0.5em] mb-2 sm:mb-2.5 whitespace-nowrap">Global_Intel_Stream</p>
-            <div className="flex items-center justify-end gap-3 sm:gap-4">
-               <span className="text-3xl sm:text-5xl font-black text-white tracking-tighter tabular-nums">98.2%</span>
-               <div className="flex gap-1 sm:gap-2">
-                  {[1,2,3].map(i => <div key={i} className="w-1.5 sm:w-2 h-4 sm:h-6 bg-blue-500 rounded-full animate-pulse" style={{ animationDelay: `${i*0.2}s` }} />)}
+      <div className="absolute bottom-3 sm:bottom-8 right-3 sm:right-8 flex items-center gap-3 sm:gap-6 bg-black/75 dark:bg-black/85 backdrop-blur-2xl border border-white/15 px-3.5 sm:px-8 py-2 sm:py-5 rounded-2xl sm:rounded-[2.5rem] shadow-2xl z-40 max-w-[calc(100%-1.5rem)]">
+         <div className="text-right min-w-0">
+            <p className="text-[8px] sm:text-[11px] font-black text-blue-400 uppercase tracking-wider sm:tracking-[0.3em] mb-0.5 sm:mb-1.5 whitespace-nowrap truncate">Global_Intel_Stream</p>
+            <div className="flex items-center justify-end gap-2 sm:gap-3">
+               <span className="text-lg sm:text-4xl font-black text-white tracking-tight tabular-nums">98.2%</span>
+               <div className="flex gap-0.5 sm:gap-1.5 shrink-0">
+                  {[1,2,3].map(i => <div key={i} className="w-1 sm:w-1.5 h-3 sm:h-5 bg-blue-500 rounded-full animate-pulse" style={{ animationDelay: `${i*0.2}s` }} />)}
                </div>
             </div>
          </div>
-         <div className="hidden sm:block w-px h-20 bg-white/20" />
-         <Zap className="hidden sm:block w-14 h-14 text-blue-500 animate-pulse fill-blue-500/10" />
+         <div className="w-px h-7 sm:h-12 bg-white/20 shrink-0" />
+         <Zap className="w-5 h-5 sm:w-8 sm:h-8 text-blue-400 animate-pulse fill-blue-500/20 shrink-0" />
       </div>
     </div>
   );

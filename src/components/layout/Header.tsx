@@ -120,6 +120,17 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
+
   const wishlistCount = user ? getUserWishlist(user.id).length : 0;
 
   const handleHeaderSearch = () => {
@@ -637,7 +648,7 @@ export default function Header() {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="absolute top-full inset-x-0 h-[100dvh] z-40 bg-card overflow-y-auto pb-40 lg:hidden border-t border-border shadow-2xl"
+            className="fixed inset-x-0 top-[78px] sm:top-[81px] bottom-0 z-[100] bg-card overflow-y-auto pb-32 lg:hidden border-t border-border shadow-2xl overscroll-contain"
           >
             <nav className="container-wide py-6 flex flex-col gap-6 px-6">
               {/* Dynamic Currency Selector */}
