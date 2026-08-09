@@ -6,8 +6,8 @@ import { Check, Star, Zap, ShieldCheck, Sparkles, ArrowRight, X, Gift, ChevronDo
 import { motion, AnimatePresence } from "framer-motion";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { updateSubscription, type PlanSubscription } from "@/lib/storage";
 import { toast } from "sonner";
+import { PaymentModal, type PaymentPlan } from "@/components/payment/PaymentModal";
 
 const plans = [
   {
@@ -92,6 +92,8 @@ export default function Pricing() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isAnnual, setIsAnnual] = useState(false);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<PaymentPlan | null>(null);
 
   const handlePurchase = (plan: typeof plans[0]) => {
     if (!user) {
@@ -101,33 +103,21 @@ export default function Pricing() {
     }
 
     if (user.role !== "seller") {
-      toast.error("Only sellers can subscribe to business plans");
+      toast.error("Only registered sellers can subscribe to business plans");
       return;
     }
 
     const price = isAnnual ? plan.yearlyPrice : plan.monthlyPrice;
-    const durationDays = isAnnual ? 365 : 30;
-    const startDate = new Date();
-    const endDate = new Date();
-    endDate.setDate(startDate.getDate() + durationDays);
 
-    const sub: PlanSubscription = {
-      planId: plan.name.toLowerCase().replace(" ", "-"),
-      planName: plan.name,
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString(),
-      status: "active",
+    setSelectedPlan({
+      id: plan.name.toLowerCase().replace(" ", "-"),
+      name: plan.name,
+      price: price,
       billingCycle: isAnnual ? "yearly" : "monthly",
-      pricePaid: price
-    };
-
-    const res = updateSubscription(user.id, sub);
-    if (res.success) {
-      toast.success(`${plan.name} Plan Activated! Account Unfrozen.`);
-      navigate("/seller/dashboard");
-    } else {
-      toast.error("Transaction failed. Please try again.");
-    }
+      desc: plan.desc,
+      features: plan.features.map(f => f.text)
+    });
+    setPaymentModalOpen(true);
   };
 
   return (
@@ -286,6 +276,20 @@ export default function Pricing() {
           </div>
         </div>
       </section>
+
+      {/* Razorpay & Multi-Method Payment Modal */}
+      <PaymentModal
+        isOpen={paymentModalOpen}
+        onClose={() => setPaymentModalOpen(false)}
+        plan={selectedPlan}
+        user={user}
+        onPaymentSuccess={(receipt) => {
+          // Keep receipt visible briefly before redirecting
+          setTimeout(() => {
+            navigate("/seller/dashboard");
+          }, 3000);
+        }}
+      />
     </Layout>
   );
 }

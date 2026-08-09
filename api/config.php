@@ -1,24 +1,15 @@
 <?php
-// config.php
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
+// config.php - Razorpay & General App Configuration
+require_once __DIR__ . '/db.php';
 
-if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
+// Razorpay API Credentials
+// Replace with your live keys from Razorpay Dashboard (https://dashboard.razorpay.com)
+define('RAZORPAY_KEY_ID', getenv('RAZORPAY_KEY_ID') ?: 'rzp_test_51ZenzeTradeHub');
+define('RAZORPAY_KEY_SECRET', getenv('RAZORPAY_KEY_SECRET') ?: 'rzp_secret_zenze123456789');
 
-$db_host = "127.0.0.1";
-$db_user = "root";
-$db_pass = "";
-$db_name = "zenze_trade";
-
-try {
-    $pdo = new PDO("mysql:host=$db_host;port=3307;dbname=$db_name;charset=utf8mb4", $db_user, $db_pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    // If DB doesn't exist, we'll handle it in setup_db.php
-    $pdo = null;
-}
+// Company & Currency Settings
+define('PAYMENT_CURRENCY', 'INR');
+define('COMPANY_NAME', 'ZENZE Trade Hub');
+define('COMPANY_LOGO', 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=128&auto=format&fit=crop&q=80');
+define('COMPANY_THEME_COLOR', '#7C3AED');
 ?>

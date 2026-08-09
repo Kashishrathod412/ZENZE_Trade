@@ -48,14 +48,15 @@ export default function ProductDetail() {
         setActiveSlideIndex(0);
         return;
       }
-      const scrollAmount = clientWidth > 600 ? 500 : 320;
-      const index = Math.round(scrollLeft / scrollAmount);
-      setActiveSlideIndex(index);
+      const firstCard = reviewSliderRef.querySelector(':scope > div') as HTMLElement | null;
+      const cardStep = firstCard ? firstCard.offsetWidth + 12 : (clientWidth > 600 ? 500 : 280);
+      const index = Math.min(Math.round(scrollLeft / cardStep), displayReviews.length - 1);
+      setActiveSlideIndex(Math.max(0, index));
     };
 
     reviewSliderRef.addEventListener('scroll', handleScroll);
     return () => reviewSliderRef.removeEventListener('scroll', handleScroll);
-  }, [reviewSliderRef]);
+  }, [reviewSliderRef, displayReviews.length]);
 
   useEffect(() => {
     if (!reviewSliderRef || displayReviews.length < 2 || isSliderHovered) return;
@@ -67,12 +68,12 @@ export default function ProductDetail() {
 
         // Only auto-scroll if there is actually content to scroll to
         if (maxScroll > 10) {
-          if (scrollLeft >= maxScroll - 50) {
+          if (scrollLeft >= maxScroll - 30) {
             reviewSliderRef.scrollTo({ left: 0, behavior: 'smooth' });
           } else {
-            // Scroll by a proportional amount of the viewport for better UX
-            const scrollAmount = clientWidth > 600 ? 500 : 320;
-            reviewSliderRef.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            const firstCard = reviewSliderRef.querySelector(':scope > div') as HTMLElement | null;
+            const cardStep = firstCard ? firstCard.offsetWidth + 12 : (clientWidth > 600 ? 500 : 280);
+            reviewSliderRef.scrollBy({ left: cardStep, behavior: 'smooth' });
           }
         }
       }
@@ -586,20 +587,20 @@ export default function ProductDetail() {
                   </Tabs>
 
                   {/* Global Reviews Section - Now Standalone */}
-                  <div className="mt-12 bg-white dark:bg-card border border-border/60 rounded-sm p-8 shadow-sm">
-                    <div className="flex flex-col sm:flex-row items-center justify-between border-b pb-6 mb-10 gap-4">
+                  <div className="mt-8 sm:mt-12 bg-white dark:bg-card border border-border/60 rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-sm">
+                    <div className="flex flex-col sm:flex-row items-center justify-between border-b pb-6 mb-8 sm:mb-10 gap-4">
                       <div>
                         <p className="text-[10px] font-black text-primary uppercase tracking-[0.4em] mb-1">
                           {isUsingFallback ? "Community Validation Hub" : "Public Feedback Hub"}
                         </p>
-                        <h3 className="text-xl font-black flex items-center gap-2 uppercase tracking-tighter">
+                        <h3 className="text-lg sm:text-xl font-black flex items-center gap-2 uppercase tracking-tighter">
                           <MessageSquare className="w-5 h-5 text-primary" />
                           {isUsingFallback ? "Global Market Stream" : "Verified Reviews & Ratings"}
                         </h3>
                       </div>
                       <button
                         onClick={() => setShowReviewForm(!showReviewForm)}
-                        className="h-10 px-8 rounded-lg border-2 border-primary/20 text-primary font-black text-[10px] uppercase tracking-[0.2em] hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm active:scale-95"
+                        className="h-10 px-6 sm:px-8 rounded-lg border-2 border-primary/20 text-primary font-black text-[10px] uppercase tracking-[0.2em] hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm active:scale-95"
                       >
                         Transmit Validation signal
                       </button>
@@ -612,15 +613,15 @@ export default function ProductDetail() {
                           animate={{ opacity: 1, height: 'auto' }}
                           exit={{ opacity: 0, height: 0 }}
                           onSubmit={handleReview}
-                          className="bg-muted min-h-0 overflow-hidden mb-12 rounded-2xl border border-border/50 shadow-inner"
+                          className="bg-muted min-h-0 overflow-hidden mb-8 sm:mb-12 rounded-2xl border border-border/50 shadow-inner"
                         >
-                          <div className="p-8 space-y-6">
+                          <div className="p-5 sm:p-8 space-y-6">
                             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                               <span className="text-xs font-black uppercase tracking-[0.3em] opacity-60">System Rating Check:</span>
                               <div className="flex gap-2">
                                 {[1, 2, 3, 4, 5].map(s => (
                                   <button key={s} type="button" onClick={() => setReviewRating(s)} className={`transition-all transform hover:scale-110 active:scale-95 ${s <= reviewRating ? 'text-accent' : 'text-muted-foreground/30'}`}>
-                                    <Star className={`w-8 h-8 ${s <= reviewRating ? "fill-current" : ""}`} />
+                                    <Star className={`w-7 h-7 sm:w-8 sm:h-8 ${s <= reviewRating ? "fill-current" : ""}`} />
                                   </button>
                                 ))}
                               </div>
@@ -630,14 +631,14 @@ export default function ProductDetail() {
                                 value={reviewComment}
                                 onChange={e => setReviewComment(e.target.value)}
                                 placeholder="Enter technical feedback or buyer validation notes..."
-                                className="w-full p-6 border-2 border-border/50 rounded-2xl bg-white/50 backdrop-blur-sm min-h-[160px] focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none text-sm font-medium transition-all"
+                                className="w-full p-4 sm:p-6 border-2 border-border/50 rounded-2xl bg-white/50 backdrop-blur-sm min-h-[140px] sm:min-h-[160px] focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none text-sm font-medium transition-all"
                               />
                             </div>
                             <div className="flex justify-end gap-3 pt-2">
-                              <Button type="button" variant="outline" onClick={() => setShowReviewForm(false)} className="px-8 h-12 rounded-xl font-black text-[10px] uppercase tracking-widest">
+                              <Button type="button" variant="outline" onClick={() => setShowReviewForm(false)} className="px-6 sm:px-8 h-10 sm:h-12 rounded-xl font-black text-[10px] uppercase tracking-widest">
                                 CANCEL SIGNAL
                               </Button>
-                              <Button className="px-10 h-12 rounded-xl font-black text-[10px] uppercase tracking-widest gradient-primary border-none shadow-xl shadow-primary/20">
+                              <Button className="px-8 sm:px-10 h-10 sm:h-12 rounded-xl font-black text-[10px] uppercase tracking-widest gradient-primary border-none shadow-xl shadow-primary/20">
                                 STATION TRANSMIT
                               </Button>
                             </div>
@@ -646,7 +647,7 @@ export default function ProductDetail() {
                       )}
                     </AnimatePresence>
 
-                    <div className="bg-muted/30 dark:bg-card/50 border border-border/50 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-10 mb-8 sm:mb-12 shadow-inner">
+                    <div className="bg-muted/30 dark:bg-card/50 border border-border/50 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-10 mb-6 sm:mb-12 shadow-inner">
                       <div className="flex flex-col md:flex-row items-center gap-6 sm:gap-10 lg:gap-20">
                         {/* Primary Metric Node */}
                         <div className="w-full md:w-auto flex flex-col items-center justify-center bg-white dark:bg-card border border-border/60 rounded-2xl sm:rounded-3xl p-6 sm:px-12 sm:py-10 shadow-xl shadow-black/5 shrink-0">
@@ -705,15 +706,15 @@ export default function ProductDetail() {
                       onMouseLeave={() => setIsSliderHovered(false)}
                     >
                       {displayReviews.length === 0 ? (
-                        <div className="py-24 text-center border-2 border-dashed border-border/40 rounded-3xl group hover:border-primary/20 transition-colors mx-4">
-                          <MessageSquare className="w-16 h-16 text-muted-foreground/10 mx-auto mb-4 group-hover:scale-110 transition-transform" />
+                        <div className="py-16 sm:py-24 text-center border-2 border-dashed border-border/40 rounded-3xl group hover:border-primary/20 transition-colors mx-2 sm:mx-4">
+                          <MessageSquare className="w-12 h-12 sm:w-16 sm:h-16 text-muted-foreground/10 mx-auto mb-4 group-hover:scale-110 transition-transform" />
                           <p className="text-xs font-black text-muted-foreground uppercase tracking-[0.5em] opacity-30">No System Feed available for this Asset node</p>
                         </div>
                       ) : (
                         <div className="relative group/slider-container">
                           <div
                             ref={setReviewSliderRef}
-                            className={`flex gap-4 sm:gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth pb-4 sm:pb-8 pt-2 sm:pt-4 ${displayReviews.length <= 1 ? 'justify-center' : 'px-4 md:px-[20%]'}`}
+                            className={`flex gap-3 sm:gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth pb-4 sm:pb-8 pt-2 sm:pt-4 px-1 sm:px-4 md:px-[20%] ${displayReviews.length <= 1 ? 'justify-center' : 'justify-start'}`}
                           >
                             {displayReviews.map((r, idx) => (
                               <motion.div
@@ -721,20 +722,20 @@ export default function ProductDetail() {
                                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 transition={{ delay: idx * 0.1, duration: 0.5 }}
-                                className="w-[calc(100vw-32px)] sm:w-[450px] md:w-[480px] shrink-0 bg-white dark:bg-card border-2 border-border/10 rounded-2xl sm:rounded-[2.5rem] p-5 sm:p-8 md:p-10 snap-center hover:border-primary/30 transition-all duration-500 group/card relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.04)] hover:shadow-[0_30px_70px_rgba(0,0,0,0.08)]"
+                                className="w-[calc(100vw-56px)] max-w-[310px] sm:w-[450px] md:w-[480px] shrink-0 bg-white dark:bg-card border-2 border-border/10 rounded-2xl sm:rounded-[2.5rem] p-4 sm:p-8 md:p-10 snap-start sm:snap-center hover:border-primary/30 transition-all duration-500 group/card relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.04)] hover:shadow-[0_30px_70px_rgba(0,0,0,0.08)]"
                               >
-                                <div className="absolute top-0 right-0 p-10 opacity-[0.03] -z-10 group-hover/card:scale-110 group-hover/card:opacity-10 transition-all duration-700">
-                                  <Quote className="w-40 h-40 text-primary" />
+                                <div className="absolute top-0 right-0 p-6 sm:p-10 opacity-[0.03] -z-10 group-hover/card:scale-110 group-hover/card:opacity-10 transition-all duration-700">
+                                  <Quote className="w-28 h-28 sm:w-40 sm:h-40 text-primary" />
                                 </div>
 
-                                <div className="flex items-start gap-3.5 sm:gap-5 mb-4 sm:mb-8">
-                                  <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary to-primary-foreground text-white flex items-center justify-center text-lg sm:text-2xl font-black shrink-0 shadow-lg sm:shadow-xl shadow-primary/20 group-hover/card:scale-110 transition-transform duration-500">
+                                <div className="flex items-start gap-3 sm:gap-5 mb-4 sm:mb-8">
+                                  <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary to-primary-foreground text-white flex items-center justify-center text-base sm:text-2xl font-black shrink-0 shadow-lg sm:shadow-xl shadow-primary/20 group-hover/card:scale-110 transition-transform duration-500">
                                     {r.userName.charAt(0)}
                                   </div>
                                   <div className="flex-1 min-w-0">
-                                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-1">
-                                      <span className="font-black text-sm sm:text-base text-foreground uppercase tracking-tight truncate">{r.userName}</span>
-                                      <div className="flex items-center gap-1 bg-emerald-600 text-white px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg text-[11px] sm:text-xs font-black shadow-md shadow-emerald-500/20 uppercase tabular-nums">
+                                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-3 mb-1">
+                                      <span className="font-black text-xs sm:text-base text-foreground uppercase tracking-tight truncate max-w-[120px] sm:max-w-none">{r.userName}</span>
+                                      <div className="flex items-center gap-1 bg-emerald-600 text-white px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-black shadow-md shadow-emerald-500/20 uppercase tabular-nums shrink-0">
                                         {r.rating.toFixed(1)} <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current" />
                                       </div>
                                     </div>
@@ -746,20 +747,20 @@ export default function ProductDetail() {
                                   <span className="hidden sm:block text-[11px] text-muted-foreground/40 uppercase tracking-widest font-black tabular-nums">{new Date(r.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}</span>
                                 </div>
 
-                                <div className="relative mb-5 sm:mb-8">
-                                  <span className="absolute -top-3 -left-1 text-2xl sm:text-4xl text-primary/10 font-serif">"</span>
-                                  <p className="text-sm sm:text-base font-medium text-foreground/80 leading-relaxed italic line-clamp-4 relative z-10 pl-3 sm:pl-4 border-l-2 sm:border-l-4 border-primary/10 group-hover/card:border-primary/20 transition-all duration-500">
+                                <div className="relative mb-4 sm:mb-8">
+                                  <span className="absolute -top-3 -left-1 text-xl sm:text-4xl text-primary/10 font-serif">"</span>
+                                  <p className="text-xs sm:text-base font-medium text-foreground/80 leading-relaxed italic line-clamp-4 relative z-10 pl-2.5 sm:pl-4 border-l-2 sm:border-l-4 border-primary/10 group-hover/card:border-primary/20 transition-all duration-500">
                                     {r.comment}
                                   </p>
                                 </div>
 
-                                <div className="flex items-center justify-between mt-auto pt-4 sm:pt-6 border-t border-border/40">
-                                  <button className="flex items-center gap-1.5 sm:gap-2.5 text-[10px] sm:text-[11px] font-black uppercase tracking-wider sm:tracking-[0.25em] text-muted-foreground/60 hover:text-primary transition-all duration-300 active:scale-95 group/help">
-                                    <ThumbsUp className="w-3.5 h-3.5 sm:w-4.5 sm:h-4.5 group-hover/help:-translate-y-0.5 transition-transform" /> HELPFUL?
+                                <div className="flex items-center justify-between gap-2 mt-auto pt-3 sm:pt-6 border-t border-border/40 shrink-0">
+                                  <button className="flex items-center gap-1 sm:gap-2.5 text-[9px] sm:text-[11px] font-black uppercase tracking-wider text-muted-foreground/60 hover:text-primary transition-all shrink-0">
+                                    <ThumbsUp className="w-3.5 h-3.5 shrink-0" /> HELPFUL?
                                   </button>
-                                  <div className="flex gap-1">
+                                  <div className="flex gap-0.5 sm:gap-1 shrink-0">
                                     {[1, 2, 3, 4, 5].map(i => (
-                                      <Star key={i} className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-all duration-500 ${i <= r.rating ? 'text-accent fill-current drop-shadow-[0_0_8px_rgba(255,193,7,0.4)]' : 'text-muted-foreground/10'}`} />
+                                      <Star key={i} className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-all ${i <= r.rating ? 'text-accent fill-current drop-shadow-[0_0_8px_rgba(255,193,7,0.4)]' : 'text-muted-foreground/10'}`} />
                                     ))}
                                   </div>
                                 </div>
@@ -773,8 +774,9 @@ export default function ProductDetail() {
                               <button
                                 onClick={() => {
                                   if (reviewSliderRef) {
-                                    const scrollAmount = reviewSliderRef.clientWidth > 600 ? 500 : reviewSliderRef.clientWidth;
-                                    reviewSliderRef.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+                                    const firstCard = reviewSliderRef.querySelector(':scope > div') as HTMLElement | null;
+                                    const cardStep = firstCard ? firstCard.offsetWidth + 12 : (reviewSliderRef.clientWidth > 600 ? 500 : 280);
+                                    reviewSliderRef.scrollBy({ left: -cardStep, behavior: 'smooth' });
                                   }
                                 }}
                                 className="pointer-events-auto w-12 h-12 md:w-16 md:h-16 rounded-full bg-white/95 dark:bg-card/95 backdrop-blur-xl border border-primary/10 shadow-[0_10px_40px_rgba(0,0,0,0.08)] flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all duration-500 group/btn"
@@ -785,8 +787,9 @@ export default function ProductDetail() {
                               <button
                                 onClick={() => {
                                   if (reviewSliderRef) {
-                                    const scrollAmount = reviewSliderRef.clientWidth > 600 ? 500 : reviewSliderRef.clientWidth;
-                                    reviewSliderRef.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                                    const firstCard = reviewSliderRef.querySelector(':scope > div') as HTMLElement | null;
+                                    const cardStep = firstCard ? firstCard.offsetWidth + 12 : (reviewSliderRef.clientWidth > 600 ? 500 : 280);
+                                    reviewSliderRef.scrollBy({ left: cardStep, behavior: 'smooth' });
                                   }
                                 }}
                                 className="pointer-events-auto w-12 h-12 md:w-16 md:h-16 rounded-full bg-white/95 dark:bg-card/95 backdrop-blur-xl border border-primary/10 shadow-[0_10px_40px_rgba(0,0,0,0.08)] flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all duration-500 group/btn"
@@ -803,11 +806,12 @@ export default function ProductDetail() {
                               <button
                                 onClick={() => {
                                   if (reviewSliderRef) {
-                                    const scrollAmount = reviewSliderRef.clientWidth > 600 ? 500 : reviewSliderRef.clientWidth;
-                                    reviewSliderRef.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+                                    const firstCard = reviewSliderRef.querySelector(':scope > div') as HTMLElement | null;
+                                    const cardStep = firstCard ? firstCard.offsetWidth + 12 : 280;
+                                    reviewSliderRef.scrollBy({ left: -cardStep, behavior: 'smooth' });
                                   }
                                 }}
-                                className="sm:hidden w-8 h-8 rounded-full bg-white dark:bg-card border border-border shadow-md flex items-center justify-center text-foreground hover:text-primary active:scale-90 transition-all"
+                                className="sm:hidden w-8 h-8 rounded-full bg-white dark:bg-card border border-border shadow-md flex items-center justify-center text-foreground hover:text-primary active:scale-90 transition-all shrink-0"
                                 aria-label="Previous review"
                               >
                                 <ChevronLeft className="w-4 h-4" />
@@ -819,10 +823,11 @@ export default function ProductDetail() {
                                     key={i}
                                     onClick={() => {
                                       if (reviewSliderRef) {
+                                        const firstCard = reviewSliderRef.querySelector(':scope > div') as HTMLElement | null;
+                                        const cardStep = firstCard ? firstCard.offsetWidth + 12 : 280;
                                         const scrollWidth = reviewSliderRef.scrollWidth - reviewSliderRef.clientWidth;
-                                        const scrollAmount = reviewSliderRef.clientWidth > 600 ? 500 : reviewSliderRef.clientWidth;
                                         reviewSliderRef.scrollTo({
-                                          left: Math.min(i * scrollAmount, scrollWidth),
+                                          left: Math.min(i * cardStep, scrollWidth),
                                           behavior: 'smooth'
                                         });
                                       }
@@ -839,11 +844,12 @@ export default function ProductDetail() {
                               <button
                                 onClick={() => {
                                   if (reviewSliderRef) {
-                                    const scrollAmount = reviewSliderRef.clientWidth > 600 ? 500 : reviewSliderRef.clientWidth;
-                                    reviewSliderRef.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                                    const firstCard = reviewSliderRef.querySelector(':scope > div') as HTMLElement | null;
+                                    const cardStep = firstCard ? firstCard.offsetWidth + 12 : 280;
+                                    reviewSliderRef.scrollBy({ left: cardStep, behavior: 'smooth' });
                                   }
                                 }}
-                                className="sm:hidden w-8 h-8 rounded-full bg-white dark:bg-card border border-border shadow-md flex items-center justify-center text-foreground hover:text-primary active:scale-90 transition-all"
+                                className="sm:hidden w-8 h-8 rounded-full bg-white dark:bg-card border border-border shadow-md flex items-center justify-center text-foreground hover:text-primary active:scale-90 transition-all shrink-0"
                                 aria-label="Next review"
                               >
                                 <ChevronRight className="w-4 h-4" />
@@ -860,18 +866,18 @@ export default function ProductDetail() {
           </div>
 
           {relatedProducts.length > 0 && (
-            <div className="mt-16 bg-white dark:bg-card border-t border-border/10 pt-12 pb-16 px-4 sm:px-6 lg:px-8">
+            <div className="mt-8 sm:mt-16 bg-white dark:bg-card border-t border-border/10 pt-6 sm:pt-12 pb-10 sm:pb-16 px-3 sm:px-6 lg:px-8">
               <div className="max-w-screen-xl mx-auto">
-                <div className="flex items-center justify-between mb-8">
+                <div className="flex flex-row items-center justify-between mb-5 sm:mb-8 gap-2">
                   <div>
-                    <p className="text-[10px] font-black text-primary uppercase tracking-[0.4em] mb-1">Discover More</p>
-                    <h3 className="text-2xl font-black uppercase tracking-tight text-foreground">Products Related to This Item</h3>
+                    <p className="text-[9px] sm:text-[10px] font-black text-primary uppercase tracking-[0.2em] sm:tracking-[0.4em] mb-0.5 sm:mb-1">Discover More</p>
+                    <h3 className="text-sm sm:text-2xl font-black uppercase tracking-tight text-foreground leading-tight">Products Related to This Item</h3>
                   </div>
-                  <Link to="/products" className="flex items-center gap-2 text-primary font-black text-xs uppercase tracking-widest hover:gap-3 transition-all border border-primary/20 px-4 py-2 rounded-full hover:bg-primary/5">
-                    SEE ALL <ChevronRight className="w-4 h-4" />
+                  <Link to="/products" className="flex items-center gap-1 sm:gap-2 text-primary font-black text-[10px] sm:text-xs uppercase tracking-wider sm:tracking-widest hover:gap-3 transition-all border border-primary/20 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full hover:bg-primary/5 shrink-0">
+                    SEE ALL <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </Link>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-6">
                   {relatedProducts.map((p, i) => (
                     <ProductCard key={p.id} product={p} index={i} />
                   ))}
@@ -883,14 +889,14 @@ export default function ProductDetail() {
         </div>
 
         {/* Mobile Floating Action */}
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 p-2.5 sm:p-3 bg-card/95 backdrop-blur-xl border-t border-border/50 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
-          <div className="grid grid-cols-2 gap-2.5 sm:gap-3 max-w-full">
-            <Button onClick={handleStartChat} variant="outline" className="h-11 sm:h-12 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-wider sm:tracking-widest border-2 hover:bg-primary/5 hover:text-primary active:scale-95 transition-all flex items-center justify-center shadow-sm">
-              <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 shrink-0" /> CHAT SELLER
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 p-2 sm:p-3 bg-card/95 backdrop-blur-xl border-t border-border/50 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+          <div className="flex items-center gap-2 max-w-full">
+            <Button onClick={handleStartChat} variant="outline" className="flex-1 h-11 rounded-xl font-bold text-xs uppercase tracking-tight border-2 hover:bg-primary/5 hover:text-primary active:scale-95 transition-all flex items-center justify-center shadow-sm px-2 overflow-hidden">
+              <Zap className="w-3.5 h-3.5 mr-1 shrink-0 text-primary" /> <span className="truncate">CHAT SELLER</span>
             </Button>
-            <Link to={`/inquiry/${product.id}`} className="w-full">
-              <Button variant="hero" className="w-full h-11 sm:h-12 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-wider sm:tracking-widest bg-[#fb641b] hover:bg-[#fb641b]/90 border-none shadow-md active:scale-95 transition-all flex items-center justify-center">
-                <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 shrink-0" /> INQUIRE NOW
+            <Link to={`/inquiry/${product.id}`} className="flex-1 min-w-0">
+              <Button variant="hero" className="w-full h-11 rounded-xl font-bold text-xs uppercase tracking-tight gradient-primary border-none shadow-md active:scale-95 transition-all flex items-center justify-center px-2 overflow-hidden">
+                <Send className="w-3.5 h-3.5 mr-1 shrink-0" /> <span className="truncate">INQUIRE NOW</span>
               </Button>
             </Link>
           </div>

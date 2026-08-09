@@ -115,38 +115,38 @@ export default function ChatCore({ initialRoomId, onClose }: ChatCoreProps) {
   const activeRoom = rooms.find(r => r.id === activeRoomId);
 
   return (
-    <div className="flex h-[650px] bg-white dark:bg-[#0A0A0F] border border-border rounded-[2.5rem] overflow-hidden shadow-2xl relative">
+    <div className="flex h-[550px] sm:h-[600px] md:h-[650px] bg-white dark:bg-[#0A0A0F] border border-border rounded-3xl sm:rounded-[2.5rem] overflow-hidden shadow-2xl relative">
       {/* Sidebar - Rooms List */}
       <div className={`w-full md:w-80 border-r border-border flex flex-col bg-muted/5 ${activeRoomId && 'hidden md:flex'}`}>
-        <div className="p-8 border-b border-border bg-white dark:bg-card">
-          <h3 className="text-lg font-black uppercase tracking-tight flex items-center gap-3">
-            <MessageSquare className="w-6 h-6 text-primary" /> Signal Hub
+        <div className="p-4 sm:p-6 md:p-8 border-b border-border bg-white dark:bg-card">
+          <h3 className="text-base sm:text-lg font-black uppercase tracking-tight flex items-center gap-3">
+            <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6 text-primary" /> Signal Hub
           </h3>
-          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mt-2 opacity-60">Active Trade Channels</p>
+          <p className="text-[9px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-widest mt-1 sm:mt-2 opacity-60">Active Trade Channels</p>
         </div>
-        <div className="flex-1 overflow-y-auto no-scrollbar p-3 space-y-2">
+        <div className="flex-1 overflow-y-auto no-scrollbar p-2 sm:p-3 space-y-2">
           {rooms.map(room => (
             <button
               key={room.id}
               onClick={() => setActiveRoomId(room.id)}
-              className={`w-full p-5 rounded-[1.5rem] text-left transition-all flex items-center gap-4 relative overflow-hidden group ${activeRoomId === room.id ? 'bg-primary text-white shadow-xl shadow-primary/20' : 'hover:bg-white dark:hover:bg-card border border-transparent hover:border-border'}`}
+              className={`w-full p-3.5 sm:p-5 rounded-2xl sm:rounded-[1.5rem] text-left transition-all flex items-center gap-3 sm:gap-4 relative overflow-hidden group ${activeRoomId === room.id ? 'bg-primary text-white shadow-xl shadow-primary/20' : 'hover:bg-white dark:hover:bg-card border border-transparent hover:border-border'}`}
             >
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-inner ${activeRoomId === room.id ? 'bg-white/20' : 'bg-primary/10 text-primary'}`}>
-                <UserIcon className="w-6 h-6" />
+              <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 shadow-inner ${activeRoomId === room.id ? 'bg-white/20' : 'bg-primary/10 text-primary'}`}>
+                <UserIcon className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className={`text-[12px] font-black uppercase truncate leading-none mb-1 ${activeRoomId === room.id ? 'text-white' : 'text-foreground'}`}>
+                <p className={`text-[11px] sm:text-[12px] font-black uppercase truncate leading-none mb-1 ${activeRoomId === room.id ? 'text-white' : 'text-foreground'}`}>
                   {getOtherUserName(room)}
                 </p>
-                <p className={`text-[10px] font-bold truncate opacity-80 mb-1.5 ${activeRoomId === room.id ? 'text-white/80' : 'text-primary'}`}>
+                <p className={`text-[9px] sm:text-[10px] font-bold truncate opacity-80 mb-1 ${activeRoomId === room.id ? 'text-white/80' : 'text-primary'}`}>
                   {room.contextTitle || `Node_${room.id.slice(0, 8)}`}
                 </p>
-                <p className={`text-[10px] font-medium truncate opacity-70 ${activeRoomId === room.id ? 'text-white' : 'text-muted-foreground'}`}>
+                <p className={`text-[9px] sm:text-[10px] font-medium truncate opacity-70 ${activeRoomId === room.id ? 'text-white' : 'text-muted-foreground'}`}>
                   {room.lastMessage || "Awaiting signal synchronization..."}
                 </p>
               </div>
               {unreadCounts[room.id] > 0 && activeRoomId !== room.id && (
-                <span className="bg-indigo-500 text-white text-[10px] px-2 py-0.5 rounded-full font-black min-w-[20px] text-center shrink-0 shadow-sm">
+                <span className="bg-indigo-500 text-white text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 rounded-full font-black min-w-[18px] sm:min-w-[20px] text-center shrink-0 shadow-sm">
                   {unreadCounts[room.id]}
                 </span>
               )}
@@ -154,11 +154,11 @@ export default function ChatCore({ initialRoomId, onClose }: ChatCoreProps) {
             </button>
           ))}
           {rooms.length === 0 && (
-            <div className="p-12 text-center">
-               <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4 border border-border/10">
-                 <MessageSquare className="w-8 h-8 text-muted-foreground/30" />
+            <div className="p-8 sm:p-12 text-center">
+               <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-3 sm:mb-4 border border-border/10">
+                 <MessageSquare className="w-6 h-6 sm:w-8 sm:h-8 text-muted-foreground/30" />
                </div>
-               <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest opacity-40">No Active Relays</p>
+               <p className="text-[9px] sm:text-[10px] font-black uppercase text-muted-foreground tracking-widest opacity-40">No Active Relays</p>
             </div>
           )}
         </div>
@@ -168,10 +168,10 @@ export default function ChatCore({ initialRoomId, onClose }: ChatCoreProps) {
       <div className={`flex-1 flex flex-col bg-white dark:bg-card ${!activeRoomId && 'hidden md:flex'}`}>
         {activeRoomId ? (
           <>
-            <div className="p-6 md:p-8 border-b border-border flex items-center justify-between bg-muted/5 backdrop-blur-sm">
-              <div className="flex items-center gap-5">
-                <Button variant="ghost" size="icon" onClick={() => setActiveRoomId(null)} className="md:hidden h-10 w-10 rounded-xl">
-                  <ChevronLeft className="w-6 h-6" />
+            <div className="p-3.5 sm:p-6 md:p-8 border-b border-border flex items-center justify-between bg-muted/5 backdrop-blur-sm">
+              <div className="flex items-center gap-2.5 sm:gap-5 min-w-0">
+                <Button variant="ghost" size="icon" onClick={() => setActiveRoomId(null)} className="md:hidden h-9 w-9 rounded-xl shrink-0 -ml-1">
+                  <ChevronLeft className="w-5 h-5" />
                 </Button>
                 <button 
                   onClick={() => {
@@ -179,26 +179,26 @@ export default function ChatCore({ initialRoomId, onClose }: ChatCoreProps) {
                     const otherUser = allUsers.find(u => u.id === otherId);
                     if (otherUser) setShowUserProfile(otherUser);
                   }}
-                  className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-inner hover:bg-primary/20 transition-colors cursor-pointer"
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-inner hover:bg-primary/20 transition-colors cursor-pointer shrink-0"
                 >
-                  <UserIcon className="w-6 h-6" />
+                  <UserIcon className="w-5 h-5 sm:w-6 sm:h-6" />
                 </button>
-                <div>
-                   <h3 className="text-base font-black uppercase tracking-tight">
-                     {activeRoom ? `${activeRoom.contextTitle} - ${getOtherUserName(activeRoom)}` : "Encrypted Direct"}
+                <div className="min-w-0 flex-1">
+                   <h3 className="text-xs sm:text-base font-black uppercase tracking-tight truncate max-w-[170px] sm:max-w-none">
+                     {activeRoom ? (activeRoom.contextTitle ? `${activeRoom.contextTitle} - ${getOtherUserName(activeRoom)}` : getOtherUserName(activeRoom)) : "Encrypted Direct"}
                    </h3>
-                   <div className="flex items-center gap-2 mt-1">
-                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                     <span className="text-[9px] font-black text-emerald-600 uppercase tracking-[0.2em]">Live Channel Authorized</span>
+                   <div className="flex items-center gap-1.5 sm:gap-2 mt-0.5 sm:mt-1">
+                     <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                     <span className="text-[8px] sm:text-[9px] font-black text-emerald-600 uppercase tracking-[0.15em] sm:tracking-[0.2em] truncate">Live Channel Authorized</span>
                    </div>
                 </div>
               </div>
-              <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 rounded-xl text-[9px] font-black uppercase tracking-widest">
+              <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 rounded-xl text-[9px] font-black uppercase tracking-widest shrink-0">
                 <ShieldCheck className="w-4 h-4" /> Secure Hub
               </div>
             </div>
             
-            <div className="flex-1 overflow-y-auto p-6 md:p-10 space-y-6 bg-slate-50/50 dark:bg-transparent" style={{ scrollBehavior: 'smooth' }}>
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-10 space-y-4 sm:space-y-6 bg-slate-50/50 dark:bg-transparent" style={{ scrollBehavior: 'smooth' }}>
               {messages.map((msg, i) => {
                 const isMine = msg.senderId === user.id;
                 return (
@@ -208,9 +208,9 @@ export default function ChatCore({ initialRoomId, onClose }: ChatCoreProps) {
                     key={msg.id}
                     className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}
                   >
-                    <div className={`max-w-[85%] md:max-w-[70%] p-5 rounded-[1.75rem] text-[13px] font-bold leading-relaxed shadow-sm transition-all hover:shadow-md ${isMine ? 'bg-primary text-white rounded-tr-none' : 'bg-white dark:bg-muted/50 border border-border rounded-tl-none'}`}>
+                    <div className={`max-w-[90%] sm:max-w-[85%] md:max-w-[70%] p-3.5 sm:p-5 rounded-2xl sm:rounded-[1.75rem] text-xs sm:text-[13px] font-bold leading-relaxed shadow-sm transition-all hover:shadow-md ${isMine ? 'bg-primary text-white rounded-tr-none' : 'bg-white dark:bg-muted/50 border border-border rounded-tl-none'}`}>
                       {msg.text}
-                      <div className={`text-[9px] mt-2 font-black uppercase opacity-50 flex items-center gap-1.5 ${isMine ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`text-[8px] sm:text-[9px] mt-1.5 sm:mt-2 font-black uppercase opacity-50 flex items-center gap-1.5 ${isMine ? 'justify-end' : 'justify-start'}`}>
                         {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         {isMine && (
                           msg.isRead ? <CheckCheck className="w-3.5 h-3.5 text-blue-400" /> : <Check className="w-3.5 h-3.5" />
@@ -221,31 +221,31 @@ export default function ChatCore({ initialRoomId, onClose }: ChatCoreProps) {
                 );
               })}
               {messages.length === 0 && (
-                <div className="h-full flex flex-col items-center justify-center opacity-30">
-                  <div className="w-20 h-20 rounded-full border-2 border-dashed border-primary/50 flex items-center justify-center mb-4">
-                    <MessageSquare className="w-10 h-10 text-primary" />
+                <div className="h-full flex flex-col items-center justify-center opacity-30 py-8">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-dashed border-primary/50 flex items-center justify-center mb-3 sm:mb-4">
+                    <MessageSquare className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
                   </div>
-                  <p className="text-xs font-black uppercase tracking-widest text-primary">Channel Ready for Transmission</p>
+                  <p className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-primary text-center px-4">Channel Ready for Transmission</p>
                 </div>
               )}
               <div ref={scrollRef} className="h-1" />
             </div>
 
-            <div className="p-8 border-t border-border bg-white dark:bg-card">
-              <div className="flex items-center gap-4 bg-muted/10 p-3 rounded-[1.75rem] border border-border shadow-inner focus-within:border-primary/50 transition-all">
+            <div className="p-3 sm:p-6 md:p-8 border-t border-border bg-white dark:bg-card pb-14 sm:pb-6 md:pb-8">
+              <div className="flex items-center gap-2 sm:gap-4 bg-muted/10 p-2 sm:p-3 rounded-2xl sm:rounded-[1.75rem] border border-border shadow-inner focus-within:border-primary/50 transition-all">
                 <input
                   type="text"
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
                   placeholder="Transmit secure trade signal..."
-                  className="flex-1 bg-transparent border-none outline-none px-4 text-xs font-bold text-foreground"
+                  className="flex-1 bg-transparent border-none outline-none px-2 sm:px-4 text-xs font-bold text-foreground min-w-0"
                 />
-                <Button onClick={handleSendMessage} className="h-12 w-12 rounded-2xl gradient-primary border-none p-0 shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
-                  <Send className="w-5 h-5 text-white" />
+                <Button onClick={handleSendMessage} className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl sm:rounded-2xl gradient-primary border-none p-0 shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all shrink-0">
+                  <Send className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </Button>
               </div>
-              <p className="text-[9px] text-center mt-4 text-muted-foreground font-black uppercase tracking-widest opacity-40">System logs encrypted and archived for trade compliance</p>
+              <p className="text-[8px] sm:text-[9px] text-center mt-2 sm:mt-4 text-muted-foreground font-black uppercase tracking-widest opacity-40 hidden sm:block">System logs encrypted and archived for trade compliance</p>
             </div>
           </>
         ) : (

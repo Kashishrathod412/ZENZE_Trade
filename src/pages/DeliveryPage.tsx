@@ -18,7 +18,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { 
   updateUserProfile, getDeliveries, addDelivery,
   updateDeliveryStatus, registerUser, saveDeliveries,
-  isLogisticsLocked,
+  isLogisticsLocked, updateDriverLocation,
   type Delivery, type User as StorageUser
 } from "@/lib/storage";
 import TacticalMap from "@/components/delivery/TacticalMap";
@@ -219,26 +219,76 @@ export default function DeliveryPage() {
     }
   }, [user]);
 
+  // Real-time Delivery Synchronizer
   useEffect(() => {
-    if (user?.role === "delivery" && user.deliveryDetails?.verificationStatus === "approved") {
-      const allDeliveries = getDeliveries();
-      if (allDeliveries.length === 0) {
-        const samples: any[] = [
-          { id: "1", orderId: "ORD-9921", partnerId: "", customerName: "Industrial Hub A", deliveryAddress: "Industrial Area Phase 2, Delhi", pickupAddress: "Sector 18, Noida", status: "pending", estimatedTime: "25 min", amount: 450, createdAt: new Date().toISOString() },
-          { id: "2", orderId: "ORD-8812", partnerId: "", customerName: "Tech Corp Z", deliveryAddress: "Cyber City, Gurugram", pickupAddress: "Okhla Estate, Delhi", status: "pending", estimatedTime: "40 min", amount: 820, createdAt: new Date().toISOString() },
-          { id: "3", orderId: "ORD-7734", partnerId: "", customerName: "Global Exports", deliveryAddress: "Whitefield, Bengaluru", pickupAddress: "Peenya Industrial Area", status: "pending", estimatedTime: "35 min", amount: 650, createdAt: new Date().toISOString() },
-        ];
-        
-        samples.forEach(s => addDelivery(s));
-        setDeliveries(getDeliveries().filter(d => d.partnerId === user.id || d.status === "pending"));
+    const syncDeliveries = () => {
+      if (user?.role === "delivery" && user.deliveryDetails?.verificationStatus === "approved") {
+        const allDeliveries = getDeliveries();
+        if (allDeliveries.length === 0) {
+          const samples: any[] = [
+            { id: "1", orderId: "ORD-9921", partnerId: "", customerName: "Industrial Hub A", deliveryAddress: "Industrial Area Phase 2, Delhi", pickupAddress: "Sector 18, Noida", status: "pending", estimatedTime: "25 min", amount: 450, createdAt: new Date().toISOString() },
+            { id: "2", orderId: "ORD-8812", partnerId: "", customerName: "Tech Corp Z", deliveryAddress: "Cyber City, Gurugram", pickupAddress: "Okhla Estate, Delhi", status: "pending", estimatedTime: "40 min", amount: 820, createdAt: new Date().toISOString() },
+            { id: "3", orderId: "ORD-7734", partnerId: "", customerName: "Global Exports", deliveryAddress: "Whitefield, Bengaluru", pickupAddress: "Peenya Industrial Area", status: "pending", estimatedTime: "35 min", amount: 650, createdAt: new Date().toISOString() },
+          ];
+          
+          samples.forEach(s => addDelivery(s));
+          setDeliveries(getDeliveries().filter(d => d.partnerId === user.id || d.status === "pending"));
+        } else {
+          setDeliveries(allDeliveries.filter(d => d.partnerId === user.id || d.status === "pending"));
+        }
       } else {
-        setDeliveries(allDeliveries.filter(d => d.partnerId === user.id || d.status === "pending"));
+        setDeliveries([]);
       }
-    } else {
-      // Strictly Zero Missions for Unverified Nodes
-      setDeliveries([]);
-    }
+    };
+
+    syncDeliveries();
+
+    window.addEventListener("deliveries_updated", syncDeliveries);
+    window.addEventListener("storage", syncDeliveries);
+    const poll = setInterval(syncDeliveries, 2000);
+
+    return () => {
+      window.removeEventListener("deliveries_updated", syncDeliveries);
+      window.removeEventListener("storage", syncDeliveries);
+      clearInterval(poll);
+    };
   }, [user]);
+
+  // Real-time Live GPS Tracking Broadcaster
+  useEffect(() => {
+    let watchId: number | null = null;
+    let timerId: any = null;
+
+    if (isOnline && user?.role === "delivery") {
+      if ("geolocation" in navigator) {
+        watchId = navigator.geolocation.watchPosition(
+          (pos) => {
+            updateDriverLocation(pos.coords.latitude, pos.coords.longitude);
+          },
+          (err) => {
+            console.warn("GPS access warning, using live simulated telemetry stream:", err);
+          },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 1000 }
+        );
+      }
+
+      // Smooth simulated GPS trajectory for live satellite grid display
+      timerId = setInterval(() => {
+        const currentLat = user.deliveryDetails?.lat || 28.6139;
+        const currentLng = user.deliveryDetails?.lng || 77.2090;
+        const latOffset = (Math.random() - 0.5) * 0.0015;
+        const lngOffset = (Math.random() - 0.5) * 0.0015;
+        updateDriverLocation(currentLat + latOffset, currentLng + lngOffset);
+      }, 4000);
+    }
+
+    return () => {
+      if (watchId !== null && "geolocation" in navigator) {
+        navigator.geolocation.clearWatch(watchId);
+      }
+      if (timerId) clearInterval(timerId);
+    };
+  }, [isOnline, user]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();

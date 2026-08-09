@@ -43,6 +43,8 @@ export interface User {
     cancelledDeliveries: number;
     rating: number;
     verificationStatus: "pending" | "approved" | "rejected";
+    lat?: number;
+    lng?: number;
     docs?: {
       profilePhoto: string;
       govtId: string;
@@ -67,7 +69,29 @@ export interface PlanSubscription {
   status: "active" | "expired";
   billingCycle: "monthly" | "yearly";
   pricePaid: number;
+  paymentId?: string;
+  orderId?: string;
+  paymentMethod?: string;
+  verifiedAt?: string;
 }
+
+export interface PaymentTransaction {
+  id: string;
+  paymentId: string;
+  orderId: string;
+  userId: string;
+  userName: string;
+  userEmail?: string;
+  planId: string;
+  planName: string;
+  amount: number;
+  currency: string;
+  paymentMethod: string;
+  billingCycle: "monthly" | "yearly";
+  status: "success" | "pending" | "failed";
+  createdAt: string;
+}
+
 
 export interface Delivery {
   id: string;
@@ -235,7 +259,8 @@ const KEYS = {
   seeded: "zenzetrade_seeded",
   chatRooms: "zenzetrade_chat_rooms",
   chatMessages: "zenzetrade_chat_messages",
-  notifications: "zenzetrade_notifications"
+  notifications: "zenzetrade_notifications",
+  payments: "zenzetrade_payments"
 };
 
 function get<T>(key: string, fallback: T): T {
@@ -479,6 +504,10 @@ export function updateInquiryStatus(id: string, status: Inquiry["status"]) {
   saveInquiries(inquiries);
 }
 
+export function deleteInquiry(id: string) {
+  saveInquiries(getInquiries().filter(i => i.id !== id));
+}
+
 export function markInquiriesAsRead(userId: string) {
   const inquiries = getInquiries().map(i => {
     if (i.buyerId === userId || i.sellerId === userId || i.buyerEmail === userId) {
@@ -565,30 +594,67 @@ export function deleteAd(id: string) {
 
 // Deliveries
 export const getDeliveries = (): Delivery[] => get(KEYS.deliveries, []);
-export const saveDeliveries = (d: Delivery[]) => set(KEYS.deliveries, d);
+export const saveDeliveries = (d: Delivery[]) => {
+  set(KEYS.deliveries, d);
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("deliveries_updated", { detail: d }));
+  }
+};
 
 export function addDelivery(data: Omit<Delivery, "id" | "createdAt">): Delivery {
   const deliveries = getDeliveries();
   const delivery: Delivery = { ...data, id: generateUUID(), createdAt: new Date().toISOString() };
-  saveDeliveries([...deliveries, delivery]);
+  const updated = [...deliveries, delivery];
+  saveDeliveries(updated);
+
+  if (typeof fetch !== "undefined") {
+    fetch("/api/add_delivery.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(delivery)
+    }).catch(() => {});
+  }
+
   return delivery;
 }
 
 export function updateDeliveryStatus(id: string, status: Delivery["status"]) {
   const user = getCurrentUser();
+  let updatedDelivery: Delivery | null = null;
   const deliveries = getDeliveries().map(d => {
     if (d.id === id) {
       const updated = { ...d, status };
       if (status === "accepted" && user) {
         updated.partnerId = user.id;
         updated.partnerName = user.name;
-        updated.partnerPhone = user.email;
+        updated.partnerPhone = user.phone || user.email;
       }
+      updatedDelivery = updated;
       return updated;
     }
     return d;
   });
   saveDeliveries(deliveries);
+
+  if (updatedDelivery && typeof fetch !== "undefined") {
+    fetch("/api/update_delivery.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedDelivery)
+    }).catch(() => {});
+  }
+}
+
+export function updateDriverLocation(lat: number, lng: number) {
+  const user = getCurrentUser();
+  if (!user || user.role !== "delivery") return;
+  const updatedDetails = {
+    ...(user.deliveryDetails || {}),
+    lat,
+    lng,
+    lastLocationUpdate: new Date().toISOString()
+  };
+  updateUserProfile({ ...user, deliveryDetails: updatedDetails as any });
 }
 
 // Logistics Lock
@@ -700,3 +766,24 @@ export function markRoomMessagesAsRead(roomId: string, userId: string) {
     saveChatMessages(newMsgs);
   }
 }
+
+// Payment Transactions History
+export function getPaymentTransactions(userId?: string): PaymentTransaction[] {
+  const all: PaymentTransaction[] = get(KEYS.payments, []);
+  if (userId) {
+    return all.filter((p) => p.userId === userId);
+  }
+  return all;
+}
+
+export function savePaymentTransaction(payment: PaymentTransaction): void {
+  const all = get<PaymentTransaction[]>(KEYS.payments, []);
+  const exists = all.findIndex((p) => p.paymentId === payment.paymentId);
+  if (exists >= 0) {
+    all[exists] = payment;
+  } else {
+    all.unshift(payment);
+  }
+  set(KEYS.payments, all);
+}
+

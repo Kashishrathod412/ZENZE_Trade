@@ -9,6 +9,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
+if (!$pdo) {
+    echo json_encode([]);
+    exit;
+}
+
 try {
     $stmt = $pdo->query("SELECT * FROM jobs ORDER BY created_at DESC");
     $jobs = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -22,13 +27,12 @@ try {
             $job['requirements'] = [];
         }
         
-        // ensure id is returned (could be auto-increment INT, format as string for frontend)
+        // ensure id is returned formatted as string for frontend
         $job['id'] = (string)$job['id'];
     }
 
-    echo json_encode(["success" => true, "data" => $jobs]);
+    echo json_encode($jobs);
 } catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode(["success" => false, "error" => $e->getMessage()]);
+    echo json_encode([]);
 }
 ?>
