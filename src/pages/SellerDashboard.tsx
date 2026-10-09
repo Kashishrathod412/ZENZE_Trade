@@ -7,6 +7,8 @@ import {
 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import { plans } from "@/config/plans";
 import {
   getProducts, addProduct, updateProduct, deleteProduct,
   getInquiries, updateInquiryStatus, updateUserProfile,
@@ -18,6 +20,7 @@ import {
   getOrCreateChatRoom,
   getChatRooms,
   getChatMessages,
+  getUsers,
   type Product, type Ad
 } from "@/lib/storage";
 import TacticalMap from "@/components/delivery/TacticalMap";
@@ -51,6 +54,7 @@ interface CountryData {
 
 const navItems = [
   { id: "overview", label: "Supplier Hub", icon: LayoutDashboard, color: "text-primary" },
+  { id: "plan", label: "My Plan", icon: Zap, color: "text-amber-500" },
   { id: "leads", label: "Lead Pipeline", icon: MessageSquare, color: "text-blue-500" },
   { id: "products", label: "Inventory Matrix", icon: Package, color: "text-emerald-500" },
   { id: "logistics", label: "Logistics Hub", icon: Navigation, color: "text-blue-600" },
@@ -114,6 +118,40 @@ export default function SellerDashboard() {
   const [unreadChatCount, setUnreadChatCount] = useState(0);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<PaymentPlan | null>(null);
+  const [planOffers, setPlanOffers] = useState<any[]>([]);
+  const { formatPrice } = useCurrency();
+
+  useEffect(() => {
+    fetch("http://localhost/market-connect-hub-main/api/get_plan_offers.php")
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setPlanOffers(data.data);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const currentPlanName = user?.subscription?.planName || "Starter";
+  const currentPlan = plans.find(p => p.name.toLowerCase() === currentPlanName.toLowerCase()) || plans[0];
+  
+  const displayPlans = plans.map(p => {
+    const offer = planOffers.find(o => o.plan_name === p.name);
+    let planData = { ...p, isOfferActive: false, isMonthlyOfferActive: false, originalYearlyPrice: p.yearlyPrice, originalMonthlyPrice: p.monthlyPrice };
+    if (offer) {
+      if (offer.is_active) {
+        planData.isOfferActive = true;
+        planData.yearlyPrice = Number(offer.offer_price);
+      }
+      if (offer.is_monthly_active) {
+        planData.isMonthlyOfferActive = true;
+        planData.monthlyPrice = Number(offer.monthly_offer_price) > 0 ? Number(offer.monthly_offer_price) : p.monthlyPrice;
+      }
+    }
+    return planData;
+  });
+
+  const upgradeOptions = displayPlans.filter(p => p.level > currentPlan.level);
 
   useEffect(() => {
     if (!user) return;
@@ -136,6 +174,18 @@ export default function SellerDashboard() {
       type: "product", 
       id: inq.productId, 
       title: `INQ: ${inq.productName}` 
+    });
+    setTargetRoomId(room.id);
+    setActiveTab("chats");
+  };
+
+  const handleOpenSupportChat = () => {
+    if (!user) return;
+    const adminUser = getUsers().find(u => u.role === "admin") || { id: "admin-1" };
+    const room = getOrCreateChatRoom(user.id, adminUser.id, {
+      type: "support",
+      id: "support",
+      title: "ZenzeTrade Support"
     });
     setTargetRoomId(room.id);
     setActiveTab("chats");
@@ -832,19 +882,10 @@ export default function SellerDashboard() {
 
                           <div className="relative z-10 pt-6 flex flex-wrap items-center gap-3">
                             <Button
-                              onClick={() => {
-                                setSelectedPlan({
-                                  id: "advanced",
-                                  name: "Advanced",
-                                  price: 499,
-                                  billingCycle: "yearly",
-                                  desc: "Top tier positioning & verified badge"
-                                });
-                                setPaymentModalOpen(true);
-                              }}
+                              onClick={() => setActiveTab("plan")}
                               className="rounded-xl px-6 h-12 bg-gradient-to-r from-primary to-purple-600 text-white font-black uppercase tracking-widest text-xs hover:opacity-90 shadow-xl"
                             >
-                              <Zap className="w-3.5 h-3.5 mr-1.5" /> Upgrade Plan
+                              <Zap className="w-3.5 h-3.5 mr-1.5" /> Manage Plan
                             </Button>
                             <Button
                               onClick={() => navigate("/pricing")}
@@ -860,6 +901,154 @@ export default function SellerDashboard() {
                           </div>
                         </div>
                       </div>
+                    </div>
+                  )}
+
+                  {/* PLAN TAB */}
+                  {activeTab === "plan" && (
+                    <div className="space-y-8">
+                      {/* Current Plan Overview */}
+                      <div className="bg-white dark:bg-card border border-border rounded-[2.5rem] p-8 md:p-10 shadow-sm relative overflow-hidden">
+                        <div className="flex flex-col md:flex-row justify-between gap-8 relative z-10">
+                          <div>
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest mb-4">
+                              <ShieldCheck className="w-3.5 h-3.5" /> Current Plan Status
+                            </div>
+                            <h3 className="text-3xl md:text-4xl font-black uppercase tracking-tight mb-2">
+                              {currentPlan.name} Plan
+                            </h3>
+                            <div className="flex items-center gap-3 mb-6">
+                              <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${isExpired ? "bg-rose-50/50 text-rose-500 border-rose-200" : "bg-emerald-50/50 text-emerald-500 border-emerald-200"}`}>
+                                {isExpired ? "Expired" : "Active"}
+                              </span>
+                              {!isExpired && user.subscription && (
+                                <span className="text-xs font-bold text-muted-foreground">
+                                  Valid until {new Date(user.subscription.endDate).toLocaleDateString()}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm font-medium text-muted-foreground max-w-md mb-6">
+                              {currentPlan.desc}
+                            </p>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg">
+                              {currentPlan.features.map((feature, i) => (
+                                <div key={i} className="flex items-center gap-2 text-xs font-bold text-foreground">
+                                  {feature.icon === "check" ? (
+                                    <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-500 flex items-center justify-center shrink-0">✓</div>
+                                  ) : feature.icon === "cross" ? (
+                                    <div className="w-5 h-5 rounded-full bg-rose-500/20 text-rose-500 flex items-center justify-center shrink-0">✕</div>
+                                  ) : feature.icon === "star" ? (
+                                    <div className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-500 flex items-center justify-center shrink-0"><Star className="w-3 h-3 fill-current" /></div>
+                                  ) : (
+                                    <div className="w-5 h-5 rounded-full bg-primary/20 text-primary flex items-center justify-center shrink-0">!</div>
+                                  )}
+                                  {feature.text}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          <div className="flex flex-col gap-4 min-w-[200px]">
+                            <div className="bg-muted/30 rounded-2xl p-6 border border-border/50 text-center">
+                              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Current Billing</p>
+                              <p className="text-2xl font-black uppercase tracking-tight">
+                                {formatPrice(user.subscription?.pricePaid || currentPlan.monthlyPrice)}
+                                <span className="text-sm text-muted-foreground">/{user.subscription?.billingCycle === 'yearly' ? 'yr' : 'mo'}</span>
+                              </p>
+                            </div>
+                            <Button variant="outline" className="w-full rounded-xl" onClick={handleOpenSupportChat}>
+                              <MessageSquare className="w-4 h-4 mr-2" /> Support Team
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Upgrade Section */}
+                      {upgradeOptions.length > 0 ? (
+                        <div className="space-y-6">
+                          <h3 className="text-xl font-black uppercase tracking-tight">Available Upgrades</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {upgradeOptions.map(plan => (
+                              <div key={plan.name} className="bg-white dark:bg-card border border-border rounded-3xl p-6 shadow-sm flex flex-col">
+                                <div className="flex justify-between items-start mb-4">
+                                  <h4 className="text-lg font-black uppercase tracking-tight">{plan.name}</h4>
+                                  {plan.popular && (
+                                    <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-gradient-to-r from-[#D946EF] via-[#A855F7] to-[#9333EA] text-white">Recommended</span>
+                                  )}
+                                </div>
+                                <div className="mb-6 space-y-3">
+                                  <div className="p-4 rounded-2xl bg-muted/30 border border-border/50">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Monthly Billing</p>
+                                    <div className="flex items-end gap-2">
+                                      <span className="text-2xl font-black tracking-tight">{formatPrice(plan.monthlyPrice)}</span>
+                                      {plan.isMonthlyOfferActive && plan.originalMonthlyPrice && plan.originalMonthlyPrice > plan.monthlyPrice && (
+                                        <span className="text-sm font-bold text-muted-foreground line-through mb-1">{formatPrice(plan.originalMonthlyPrice)}</span>
+                                      )}
+                                    </div>
+                                    {plan.isMonthlyOfferActive && (
+                                      <p className="text-[10px] font-bold text-emerald-500 mt-1">Special Offer Applied</p>
+                                    )}
+                                  </div>
+                                  <div className="p-4 rounded-2xl bg-primary/5 border border-primary/20">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-1">Yearly Billing</p>
+                                    <div className="flex items-end gap-2">
+                                      <span className="text-2xl font-black tracking-tight text-primary">{formatPrice(plan.yearlyPrice)}</span>
+                                      {plan.isOfferActive && plan.originalYearlyPrice && plan.originalYearlyPrice > plan.yearlyPrice && (
+                                        <span className="text-sm font-bold text-primary/50 line-through mb-1">{formatPrice(plan.originalYearlyPrice)}</span>
+                                      )}
+                                    </div>
+                                    {plan.isOfferActive ? (
+                                      <p className="text-[10px] font-bold text-emerald-500 mt-1">Special Offer Applied</p>
+                                    ) : (
+                                      <p className="text-[10px] font-bold text-primary mt-1">Save {formatPrice((plan.originalMonthlyPrice || plan.monthlyPrice) * 12 - plan.yearlyPrice)}</p>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="mt-auto space-y-3">
+                                  <Button 
+                                    onClick={() => {
+                                      setSelectedPlan({
+                                        id: plan.name.toLowerCase().replace(" ", "-"),
+                                        name: plan.name,
+                                        price: plan.monthlyPrice,
+                                        billingCycle: "monthly",
+                                        desc: plan.desc
+                                      });
+                                      setPaymentModalOpen(true);
+                                    }}
+                                    variant="outline"
+                                    className="w-full rounded-xl font-bold uppercase tracking-wider text-xs h-12"
+                                  >
+                                    Upgrade Monthly
+                                  </Button>
+                                  <Button 
+                                    onClick={() => {
+                                      setSelectedPlan({
+                                        id: plan.name.toLowerCase().replace(" ", "-"),
+                                        name: plan.name,
+                                        price: plan.yearlyPrice,
+                                        billingCycle: "yearly",
+                                        desc: plan.desc
+                                      });
+                                      setPaymentModalOpen(true);
+                                    }}
+                                    className={`w-full rounded-xl font-black uppercase tracking-widest text-xs h-12 shadow-md hover:shadow-lg transition-all ${plan.popular ? 'bg-gradient-to-r from-[#D946EF] via-[#A855F7] to-[#9333EA] text-white hover:opacity-90' : 'bg-primary text-primary-foreground hover:bg-primary/90'}`}
+                                  >
+                                    Upgrade Yearly
+                                  </Button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="bg-white dark:bg-card border border-border rounded-[2.5rem] p-12 text-center shadow-sm">
+                          <div className="w-20 h-20 bg-emerald-500/10 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <Star className="w-10 h-10" />
+                          </div>
+                          <h3 className="text-2xl font-black uppercase tracking-tight mb-2">Maximum Network Level Achieved</h3>
+                          <p className="text-muted-foreground font-medium max-w-md mx-auto">You are currently on the {currentPlan.name} plan, which is the highest tier available. Enjoy your maximum reach and premium features!</p>
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -2330,17 +2519,19 @@ export default function SellerDashboard() {
         plan={selectedPlan}
         user={user}
         onPaymentSuccess={() => {
-          if (setUser && user) {
+          if (setUser && user && selectedPlan) {
+            const isMonthly = selectedPlan.billingCycle === "monthly";
+            const daysToAdd = isMonthly ? 30 : 365;
             const updated = {
               ...user,
               subscription: {
-                planId: selectedPlan?.id || "advanced",
-                planName: selectedPlan?.name || "Advanced",
+                planId: selectedPlan.id,
+                planName: selectedPlan.name,
                 startDate: new Date().toISOString(),
-                endDate: new Date(Date.now() + 365 * 86400000).toISOString(),
+                endDate: new Date(Date.now() + daysToAdd * 86400000).toISOString(),
                 status: "active" as const,
-                billingCycle: "yearly" as const,
-                pricePaid: selectedPlan?.price || 499
+                billingCycle: selectedPlan.billingCycle as "yearly" | "monthly",
+                pricePaid: selectedPlan.price
               }
             };
             setUser(updated);

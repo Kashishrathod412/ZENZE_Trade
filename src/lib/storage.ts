@@ -14,7 +14,7 @@ export interface User {
   password: string;
   phone?: string;
   country?: string;
-  role: "buyer" | "seller" | "admin" | "delivery";
+  role: "buyer" | "seller" | "admin" | "delivery" | "team_member";
   sellerType?: string;
   category?: string;
   website?: string;
@@ -57,6 +57,8 @@ export interface User {
     waitChargePerMin: number;
     bikeWeightLimit: number;
   };
+  is_active?: boolean;
+  permissions?: string[];
   createdAt: string;
   subscription?: PlanSubscription;
 }
@@ -217,7 +219,7 @@ export interface ChatRoom {
   participantIds: string[]; // [buyerId, sellerId]
   lastMessage?: string;
   lastTimestamp?: string;
-  contextType?: "product" | "ad" | "general";
+  contextType?: "product" | "ad" | "general" | "support" | "direct";
   contextId?: string;
   contextTitle?: string;
 }
@@ -694,7 +696,7 @@ export const saveChatMessages = (msgs: ChatMessage[]) => set(KEYS.chatMessages, 
 
 export function getOrCreateChatRoom(p1: string, p2: string, context?: { type: string, id: string, title: string }): ChatRoom {
   const rooms = getChatRooms();
-  let room = rooms.find(r => r.participantIds.includes(p1) && r.participantIds.includes(p2));
+  let room = rooms.find(r => r.participantIds?.includes(p1) && r.participantIds?.includes(p2));
   
   if (!room) {
     room = {

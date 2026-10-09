@@ -135,15 +135,55 @@ export default function Login() {
     setIsLoading(true);
     try {
       await new Promise(r => setTimeout(r, 400));
-      const result = loginUser(email, password);
-      if (!result.success) { toast.error(result.error || "Login failed"); return; }
-      setUser(result.user!);
-      toast.success("Welcome back!");
-      const u = result.user!;
-      if (u.role === "admin") navigate("/admin");
-      else if (u.role === "seller") navigate("/seller/dashboard");
-      else if (u.role === "delivery") navigate("/delivery");
-      else navigate("/buyer/dashboard");
+      
+      // Try DB login first
+      let resultUser = null;
+      try {
+        const res = await fetch("http://localhost/market-connect-hub-main/api/login.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email.toLowerCase(), password }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success) {
+            resultUser = data.user;
+          } else if (data.error) {
+            toast.error(data.error);
+            setIsLoading(false);
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn("DB login failed, falling back to local storage");
+      }
+
+      if (resultUser) {
+        // Sync to local storage
+        const users = JSON.parse(localStorage.getItem("th_users") || "[]");
+        if (!users.find((u: any) => u.id === resultUser.id)) {
+          localStorage.setItem("th_users", JSON.stringify([...users, resultUser]));
+        } else {
+          localStorage.setItem("th_users", JSON.stringify(users.map((u: any) => u.id === resultUser.id ? resultUser : u)));
+        }
+        setUser(resultUser);
+        toast.success("Welcome back!");
+        const u = resultUser;
+        if (u.role === "admin") navigate("/admin");
+        else if (u.role === "seller") navigate("/seller/dashboard");
+        else if (u.role === "delivery") navigate("/delivery");
+        else navigate("/buyer/dashboard");
+      } else {
+        const result = loginUser(email.toLowerCase(), password);
+        if (!result.success) { toast.error(result.error || "Login failed"); return; }
+        setUser(result.user!);
+        toast.success("Welcome back!");
+        const u = result.user!;
+        if (u.role === "admin") navigate("/admin");
+        else if (u.role === "seller") navigate("/seller/dashboard");
+        else if (u.role === "delivery") navigate("/delivery");
+        else navigate("/buyer/dashboard");
+      }
     } catch { toast.error("Something went wrong"); }
     finally { setIsLoading(false); }
   };

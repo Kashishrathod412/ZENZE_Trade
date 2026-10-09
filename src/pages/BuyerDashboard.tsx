@@ -51,7 +51,8 @@ import {
     removeFromWishlist,
     getOrCreateChatRoom,
     getChatRooms,
-    getChatMessages
+    getChatMessages,
+    getUsers
 } from "@/lib/storage";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
@@ -123,6 +124,18 @@ export default function BuyerDashboard() {
             type: "product", 
             id: inq.productId, 
             title: `INQ: ${inq.productName}` 
+        });
+        setTargetRoomId(room.id);
+        setActiveTab("chats");
+    };
+
+    const handleOpenSupportChat = () => {
+        if (!user) return;
+        const adminUser = getUsers().find(u => u.role === "admin") || { id: "admin-1" };
+        const room = getOrCreateChatRoom(user.id, adminUser.id, {
+            type: "support",
+            id: "support",
+            title: "ZenzeTrade Support"
         });
         setTargetRoomId(room.id);
         setActiveTab("chats");
@@ -400,9 +413,7 @@ export default function BuyerDashboard() {
                                 <div className="hidden lg:block mt-6 p-5 rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 text-center">
                                     <p className="text-[10px] font-black uppercase text-primary mb-3">Enterprise Access</p>
                                     <p className="text-xs font-medium text-foreground/70 mb-4">Connect directly with 12K+ verified manufacturers.</p>
-                                    <Link to="/contact">
-                                        <Button variant="outline" size="sm" className="rounded-lg h-8 px-4 text-[10px] font-black uppercase tracking-widest border-primary/30 text-primary hover:bg-primary hover:text-white transition-all w-full">Support Hub</Button>
-                                    </Link>
+                                    <Button onClick={handleOpenSupportChat} variant="outline" size="sm" className="rounded-lg h-8 px-4 text-[10px] font-black uppercase tracking-widest border-primary/30 text-primary hover:bg-primary hover:text-white transition-all w-full">Support Team Chat</Button>
                                 </div>
                                 <button onClick={handleLogout} className="flex items-center gap-2.5 sm:gap-3 px-3.5 py-2.5 sm:px-5 sm:py-3.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-rose-500 hover:bg-rose-50/50 w-auto lg:w-full hover:shadow-sm border border-transparent hover:border-rose-100 whitespace-nowrap snap-start shrink-0 mt-0 lg:mt-4">
                                     <LogOut className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />

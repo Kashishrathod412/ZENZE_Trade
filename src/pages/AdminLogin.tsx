@@ -17,7 +17,7 @@ export default function AdminLogin() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://localhost/api/login.php", {
+      const response = await fetch("http://localhost/market-connect-hub-main/api/login.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password })
@@ -25,7 +25,12 @@ export default function AdminLogin() {
       
       const data = await response.json();
 
-      if (data.success && data.user?.role === "admin") {
+      if (data.success && (data.user?.role === "admin" || data.user?.role === "team_member")) {
+        if (data.user.role === "team_member" && data.user.is_active === 0) {
+          toast.error("Account Suspended. Contact Master Admin.");
+          setIsLoading(false);
+          return;
+        }
         localStorage.setItem("th_admin_user", JSON.stringify(data.user));
         toast.success("Access Granted. Command Center Initialized.");
         navigate("/admin");

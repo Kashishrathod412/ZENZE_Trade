@@ -9,6 +9,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
 }
+require_once 'rbac.php';
+enforce_permission($conn, 'manage_ads');
+
 
 if (!$pdo) {
     echo json_encode(["success" => true, "message" => "Saved locally (Database not available)"]);
@@ -68,3 +71,4 @@ try {
     echo json_encode(["success" => false, "error" => $e->getMessage()]);
 }
 ?>
+

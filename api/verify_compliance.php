@@ -38,3 +38,4 @@ try {
     echo json_encode(["success" => false, "error" => "Database error: " . $e->getMessage()]);
 }
 ?>
+

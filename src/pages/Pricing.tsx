@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Layout from "@/components/layout/Layout";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -9,83 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { PaymentModal, type PaymentPlan } from "@/components/payment/PaymentModal";
 
-const plans = [
-  {
-    name: "Starter",
-    monthlyPrice: 49,
-    yearlyPrice: 499,
-    desc: "Perfect for testing the waters",
-    features: [
-      { text: "Products: 5–10", icon: "check" },
-      { text: "Limited leads", icon: "check" },
-      { text: "No verification", icon: "cross" },
-      { text: "1 Month Free", icon: "gift" }
-    ],
-    cta: "Join Network",
-    popular: false,
-  },
-  {
-    name: "Basic",
-    monthlyPrice: 99,
-    yearlyPrice: 999,
-    desc: "Good for growing businesses",
-    features: [
-      { text: "Products: 10–50", icon: "check" },
-      { text: "More visibility", icon: "check" },
-      { text: "Verification paid (₹199/year)", icon: "cross" },
-      { text: "1 Month Free", icon: "gift" }
-    ],
-    cta: "Get Basic",
-    popular: false,
-  },
-  {
-    name: "Premium",
-    monthlyPrice: 299,
-    yearlyPrice: 3000,
-    desc: "Priority features and leads",
-    features: [
-      { text: "Products: 50–100", icon: "check" },
-      { text: "Priority leads", icon: "check" },
-      { text: "Featured listing", icon: "check" },
-      { text: "Verification optional", icon: "cross" },
-      { text: "1 Month Free", icon: "gift" }
-    ],
-    cta: "Go Premium",
-    popular: false,
-  },
-  {
-    name: "Advanced",
-    monthlyPrice: 499,
-    yearlyPrice: 5000,
-    desc: "Top tier positioning",
-    features: [
-      { text: "Products: 100–300", icon: "check" },
-      { text: "Top ranking", icon: "check" },
-      { text: "Homepage feature", icon: "check" },
-      { text: "Premium badge", icon: "star" },
-      { text: "FREE Verification", icon: "check" },
-      { text: "1 Month Free", icon: "gift" }
-    ],
-    cta: "Go Advanced",
-    popular: true,
-  },
-  {
-    name: "Enterprise",
-    monthlyPrice: 999,
-    yearlyPrice: 9999,
-    desc: "Maximum reach and support",
-    features: [
-      { text: "Unlimited products", icon: "check" },
-      { text: "Maximum visibility", icon: "check" },
-      { text: "Top homepage placement", icon: "check" },
-      { text: "Dedicated support", icon: "check" },
-      { text: "Premium branding", icon: "star" },
-      { text: "FREE Verification", icon: "check" }
-    ],
-    cta: "Contact Sales",
-    popular: false,
-  },
-];
+import { plans } from "@/config/plans";
 
 export default function Pricing() {
   const { formatPrice } = useCurrency();
@@ -94,8 +18,45 @@ export default function Pricing() {
   const [isAnnual, setIsAnnual] = useState(false);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<PaymentPlan | null>(null);
+  const [planOffers, setPlanOffers] = useState<any[]>([]);
 
-  const handlePurchase = (plan: typeof plans[0]) => {
+  useEffect(() => {
+    fetch("http://localhost/market-connect-hub-main/api/get_plan_offers.php")
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setPlanOffers(data.data);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const displayPlans = plans.map(p => {
+    const offer = planOffers.find(o => o.plan_name === p.name);
+    
+    let planData = { ...p, isOfferActive: false, isMonthlyOfferActive: false, originalYearlyPrice: p.yearlyPrice, originalMonthlyPrice: p.monthlyPrice };
+    
+    if (offer) {
+      if (offer.original_yearly_price > 0) planData.originalYearlyPrice = Number(offer.original_yearly_price);
+      if (offer.original_monthly_price > 0) planData.originalMonthlyPrice = Number(offer.original_monthly_price);
+      
+      // Override the base yearly/monthly price with original prices so that calculations use the DB values when NO offer is active
+      if (offer.original_yearly_price > 0) planData.yearlyPrice = Number(offer.original_yearly_price);
+      if (offer.original_monthly_price > 0) planData.monthlyPrice = Number(offer.original_monthly_price);
+
+      if (offer.is_active) {
+        planData.isOfferActive = true;
+        planData.yearlyPrice = Number(offer.offer_price);
+      }
+      if (offer.is_monthly_active) {
+        planData.isMonthlyOfferActive = true;
+        planData.monthlyPrice = Number(offer.monthly_offer_price) > 0 ? Number(offer.monthly_offer_price) : planData.monthlyPrice;
+      }
+    }
+    return planData;
+  });
+
+  const handlePurchase = (plan: typeof plans[0] & { isOfferActive?: boolean, isMonthlyOfferActive?: boolean, originalYearlyPrice?: number, originalMonthlyPrice?: number }) => {
     if (!user) {
       toast.error("Please login to purchase a plan");
       navigate("/login");
@@ -180,7 +141,7 @@ export default function Pricing() {
           </div>
 
           <div className="flex flex-wrap justify-center items-stretch gap-[40px] max-w-[1400px] mx-auto px-4">
-            {plans.map((plan, i) => (
+            {displayPlans.map((plan, i) => (
               <motion.div
                 key={plan.name}
                 initial={{ opacity: 0, y: 30 }}
@@ -211,20 +172,30 @@ export default function Pricing() {
                         initial={{ opacity: 0, y: 5 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -5 }}
-                        className="text-[48px] font-bold text-black tracking-tight leading-none"
+                        className="text-[48px] font-bold text-black tracking-tight leading-none flex items-center gap-3 flex-wrap"
                       >
                         {isAnnual 
                           ? (plan.yearlyPrice === 0 ? "Free" : formatPrice(plan.yearlyPrice))
                           : (plan.monthlyPrice === 0 ? "Free" : formatPrice(plan.monthlyPrice))
                         }
+                        {isAnnual && plan.isOfferActive && (
+                           <span className="text-xl text-gray-400 line-through font-medium">
+                             {formatPrice(plan.originalYearlyPrice!)}
+                           </span>
+                        )}
+                        {!isAnnual && plan.isMonthlyOfferActive && plan.originalMonthlyPrice! > plan.monthlyPrice && (
+                           <span className="text-xl text-gray-400 line-through font-medium">
+                             {formatPrice(plan.originalMonthlyPrice!)}
+                           </span>
+                        )}
                       </motion.span>
                     </AnimatePresence>
                   </div>
                   
                   <p className="text-[11px] text-gray-400 font-medium mb-6">
                     {isAnnual && plan.yearlyPrice > 0 
-                      ? `Billed annually (Save ${formatPrice((plan.monthlyPrice * 12) - plan.yearlyPrice)})` 
-                      : (plan.monthlyPrice === 0 ? "Free forever" : "one-time payment + Local Taxes")}
+                      ? (plan.isOfferActive ? "Special One-Time Yearly Offer" : `Billed annually (Save ${formatPrice((plan.originalMonthlyPrice || plan.monthlyPrice) * 12 - plan.yearlyPrice)})`)
+                      : (!isAnnual && plan.isMonthlyOfferActive ? "Special Monthly Offer + Local Taxes" : (plan.monthlyPrice === 0 ? "Free forever" : "one-time payment + Local Taxes"))}
                   </p>
 
                   <Button 

@@ -19,10 +19,13 @@ import { useAuth } from "@/contexts/AuthContext";
 interface ChatCoreProps {
   initialRoomId?: string;
   onClose?: () => void;
+  adminUser?: any;
+  systemUsers?: any[];
 }
 
-export default function ChatCore({ initialRoomId, onClose }: ChatCoreProps) {
-  const { user } = useAuth();
+export default function ChatCore({ initialRoomId, onClose, adminUser, systemUsers = [] }: ChatCoreProps) {
+  const { user: authUser } = useAuth();
+  const user = adminUser || authUser;
   const [rooms, setRooms] = useState<ChatRoom[]>([]);
   const [activeRoomId, setActiveRoomId] = useState<string | null>(initialRoomId || null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -34,11 +37,11 @@ export default function ChatCore({ initialRoomId, onClose }: ChatCoreProps) {
   useEffect(() => {
     if (!user) return;
     const loadRooms = () => {
-      const allUsers = getUsers();
       const allRooms = getChatRooms().filter(r => {
-        if (!r.participantIds.includes(user.id)) return false;
-        const otherId = r.participantIds.find(id => id !== user.id);
-        return allUsers.some(u => u.id === otherId);
+        if (user.role === 'admin' || user.role === 'team_member') {
+          return r.participantIds?.includes(user.id) || r.participantIds?.includes("admin-1") || r.participantIds?.includes(1 as any) || r.participantIds?.includes("1");
+        }
+        return r.participantIds?.includes(user.id);
       });
       setRooms(allRooms);
       
@@ -105,11 +108,13 @@ export default function ChatCore({ initialRoomId, onClose }: ChatCoreProps) {
     </div>
   );
 
-  const allUsers = getUsers();
+  const allUsers = [...getUsers(), ...systemUsers];
   const getOtherUserName = (room: ChatRoom) => {
-    const otherUserId = room.participantIds.find(id => id !== user?.id);
-    const otherUser = allUsers.find(u => u.id === otherUserId);
-    return otherUser ? otherUser.name : "Unknown User";
+    const otherUserId = room.participantIds?.find(id => id !== user?.id);
+    const otherUser = allUsers.find(u => u.id === otherUserId || u.id === Number(otherUserId));
+    if (otherUser) return otherUser.name;
+    if (room.contextType === 'support' || otherUserId === 'admin-1' || otherUserId === '1' || Number(otherUserId) === 1) return "Zenze Admin";
+    return "Unknown User";
   };
 
   const activeRoom = rooms.find(r => r.id === activeRoomId);
@@ -175,8 +180,9 @@ export default function ChatCore({ initialRoomId, onClose }: ChatCoreProps) {
                 </Button>
                 <button 
                   onClick={() => {
-                    const otherId = activeRoom?.participantIds.find(id => id !== user?.id);
-                    const otherUser = allUsers.find(u => u.id === otherId);
+                    const otherId = activeRoom?.participantIds?.find(id => id !== user?.id);
+                    if (otherId === 'admin-1' || otherId === '1' || Number(otherId) === 1) return;
+                    const otherUser = allUsers.find(u => u.id === otherId || u.id === Number(otherId));
                     if (otherUser) setShowUserProfile(otherUser);
                   }}
                   className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-inner hover:bg-primary/20 transition-colors cursor-pointer shrink-0"

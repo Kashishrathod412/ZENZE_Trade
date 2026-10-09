@@ -14,7 +14,9 @@ try {
         if (!empty($row['deliveryDetails'])) $row['deliveryDetails'] = json_decode($row['deliveryDetails'], true);
         if (!empty($row['deliveryPricing'])) $row['deliveryPricing'] = json_decode($row['deliveryPricing'], true);
         if (!empty($row['subscription'])) $row['subscription'] = json_decode($row['subscription'], true);
+        if (!empty($row['permissions'])) $row['permissions'] = json_decode($row['permissions'], true);
         $row['verified'] = (bool)$row['verified'];
+        if (isset($row['is_active'])) $row['is_active'] = (bool)$row['is_active'];
     }
     echo json_encode($results);
 } catch (Exception $e) {

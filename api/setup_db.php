@@ -52,9 +52,19 @@ try {
         deliveryDetails JSON DEFAULT NULL,
         deliveryPricing JSON DEFAULT NULL,
         subscription JSON DEFAULT NULL,
+        is_active TINYINT(1) DEFAULT 1,
+        permissions JSON DEFAULT NULL,
         createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
     )";
     $pdo->exec($sqlUsers);
+
+    // Add columns if they don't exist (for existing databases)
+    try {
+        $pdo->exec("ALTER TABLE users ADD COLUMN is_active TINYINT(1) DEFAULT 1");
+    } catch (PDOException $e) {}
+    try {
+        $pdo->exec("ALTER TABLE users ADD COLUMN permissions JSON DEFAULT NULL");
+    } catch (PDOException $e) {}
 
     // 2. Products Table
     $sqlProducts = "CREATE TABLE IF NOT EXISTS products (
@@ -183,13 +193,21 @@ try {
     )";
     $pdo->exec($sqlPayments);
 
+    // 9. Plan Offers Table
+    $sqlPlanOffers = "CREATE TABLE IF NOT EXISTS plan_offers (
+        plan_name VARCHAR(50) PRIMARY KEY,
+        offer_price INT DEFAULT 0,
+        is_active TINYINT(1) DEFAULT 0
+    )";
+    $pdo->exec($sqlPlanOffers);
+
     // Ensure uploads directory exists
     $upload_dir = __DIR__ . '/uploads';
     if (!file_exists($upload_dir)) {
         mkdir($upload_dir, 0777, true);
     }
 
-    echo json_encode(["success" => true, "message" => "Database and all 8 tables created successfully."]);
+    echo json_encode(["success" => true, "message" => "Database and all 9 tables created successfully."]);
 
 } catch(PDOException $e) {
     http_response_code(500);

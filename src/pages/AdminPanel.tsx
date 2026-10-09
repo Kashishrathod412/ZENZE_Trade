@@ -3,7 +3,7 @@ import { useNavigate, Navigate } from "react-router-dom";
 import {
   Users, Package, ShieldCheck, MessageSquare, BarChart3,
   Settings, Eye, Ban, CheckCircle2, FileText, Clock, ShieldPlus, Shield, ChevronRight, ChevronLeft,
-  Bell, Search, LayoutDashboard, LogOut, Menu, X,
+  Bell, Search, LayoutDashboard, LogOut, Menu, X, Zap,
   TrendingUp, ArrowUpRight, ArrowDownRight, Globe,
   MoreVertical, Filter, Download, ArrowLeft,
   Briefcase, Mail, Phone, Calendar, MapPin, Tag, ShoppingBag, ExternalLink,
@@ -11,6 +11,7 @@ import {
   Trash2, MessageCircle, Copy, ZoomIn, ZoomOut, RotateCw, Maximize2, FileCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import TacticalMap from "@/components/delivery/TacticalMap";
@@ -28,6 +29,7 @@ import {
   getDeliveries,
   getJobs,
   getAds,
+  getOrCreateChatRoom,
   approveAd,
   rejectAd,
   deleteAd,
@@ -53,6 +55,8 @@ interface CountryData {
   states: StateData[];
 }
 import Globe3D from "@/components/admin/Globe3D";
+import ChatCore from "@/components/chat/ChatCore";
+import TeamMembers from "@/components/admin/TeamMembers";
 
 const adminTabs = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -65,11 +69,12 @@ const adminTabs = [
   { id: "analytics", label: "Intelligence", icon: BarChart3 },
   { id: "compliance", label: "Compliance", icon: ShieldCheck },
   { id: "subscriptions", label: "Subscriptions", icon: Calendar },
+  { id: "team", label: "Team Members", icon: ShieldPlus },
+  { id: "support", label: "Support Chats", icon: MessageSquare },
   { id: "settings", label: "Settings", icon: Settings },
 ];
 
-export default function AdminPanel() {
-  const navigate = useNavigate();
+export default function AdminPanelWrapper() {
   const [adminUser, setAdminUser] = useState<LibUser | null>(() => {
     try {
       const raw = localStorage.getItem("th_admin_user");
@@ -80,9 +85,40 @@ export default function AdminPanel() {
   });
 
   // HIGH-SECURITY GATEWAY: ZERO-TRUST VALIDATION
-  if (!adminUser || adminUser.role !== "admin") {
+  if (!adminUser || (adminUser.role !== "admin" && adminUser.role !== "team_member")) {
     return <Navigate to="/admin/login" replace />;
   }
+
+  return <AdminPanel adminUser={adminUser} setAdminUser={setAdminUser} />;
+}
+
+function AdminPanel({ adminUser, setAdminUser }: { adminUser: LibUser, setAdminUser: any }) {
+  const navigate = useNavigate();
+
+  const isMasterAdmin = adminUser.role === "admin";
+  const perms = Array.isArray(adminUser.permissions) ? adminUser.permissions : (typeof adminUser.permissions === 'string' ? JSON.parse(adminUser.permissions || '[]') : []);
+
+  const filteredTabs = adminTabs.filter(tab => {
+    if (isMasterAdmin) return true; // Master admin sees everything
+    
+    // Team member permission checks
+    switch(tab.id) {
+      case "dashboard": return true; // Everyone sees dashboard
+      case "settings": return true; // Everyone sees personal settings
+      case "users": return perms.includes('manage_users') || perms.includes('register_users');
+      case "logistics": return perms.includes('manage_logistics'); 
+      case "categories": return perms.includes('manage_products');
+      case "leads": return perms.includes('manage_inquiries');
+      case "ads": return perms.includes('manage_ads');
+      case "hiring": return perms.includes('manage_hiring'); 
+      case "analytics": return perms.includes('view_analytics');
+      case "compliance": return perms.includes('manage_compliance'); 
+      case "subscriptions": return perms.includes('manage_subscriptions');
+      case "support": return perms.includes('manage_support');
+      case "team": return false; // ONLY Master admin can manage team members
+      default: return false;
+    }
+  });
 
   const [activeTab, setActiveTab] = useState("dashboard");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -95,12 +131,15 @@ export default function AdminPanel() {
   const [dbDeliveries, setDbDeliveries] = useState<LibDelivery[]>([]);
   const [dbJobs, setDbJobs] = useState<LibJob[]>([]);
   const [dbAds, setDbAds] = useState<LibAd[]>([]);
+  const [planOffers, setPlanOffers] = useState<any[]>([]);
   const [selectedUser, setSelectedUser] = useState<LibUser | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [logisticsLocked, setLogisticsLocked] = useState(false);
   const [viewDate, setViewDate] = useState(new Date());
   const [userFilter, setUserFilter] = useState<'close' | 'all' | 'seller' | 'buyer'>('close');
   const [chartTimeframe, setChartTimeframe] = useState<'1H' | '1D' | '1W' | '1M'>('1W');
+  const [editingPlanForUser, setEditingPlanForUser] = useState(false);
+  const [isEditingUser, setIsEditingUser] = useState(false);
   
   // Leads Filtering & Search State
   const [leadSearchQuery, setLeadSearchQuery] = useState("");
@@ -133,13 +172,20 @@ export default function AdminPanel() {
   const [jDesc, setJDesc] = useState("");
   const [jReqs, setJReqs] = useState("");
 
+  // User Registration State
+  const [showCreateUserForm, setShowCreateUserForm] = useState(false);
+  const [cuName, setCuName] = useState("");
+  const [cuEmail, setCuEmail] = useState("");
+  const [cuPassword, setCuPassword] = useState("");
+  const [cuRole, setCuRole] = useState<"seller" | "buyer">("buyer");
+
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
   useEffect(() => {
-    if (!adminUser || adminUser.role !== "admin") {
+    if (!adminUser || (adminUser.role !== "admin" && adminUser.role !== "team_member")) {
       navigate("/admin/login");
       return;
     }
@@ -148,10 +194,21 @@ export default function AdminPanel() {
       try {
         // Users
         try {
-          const uRes = await fetch("http://localhost/api/get_users.php");
+          const uRes = await fetch("http://localhost/market-connect-hub-main/api/get_users.php");
           if (uRes.ok) {
             const uData = await uRes.json();
-            setDbUsers(Array.isArray(uData) && uData.length > 0 ? uData : (getUsers() || []));
+            const latestUsers = Array.isArray(uData) && uData.length > 0 ? uData : (getUsers() || []);
+            setDbUsers(latestUsers);
+
+            // Real-time permission sync for current user
+            if (adminUser) {
+              const current = latestUsers.find((u: any) => u.id === adminUser.id);
+              if (current && JSON.stringify(current.permissions) !== JSON.stringify(adminUser.permissions)) {
+                const updatedAdmin = { ...adminUser, permissions: current.permissions };
+                setAdminUser(updatedAdmin);
+                localStorage.setItem("th_admin_user", JSON.stringify(updatedAdmin));
+              }
+            }
           } else {
             setDbUsers(getUsers() || []);
           }
@@ -223,6 +280,17 @@ export default function AdminPanel() {
         } catch (err) {
           setDbAds(getAds() || []);
         }
+
+        // Plan Offers
+        try {
+          const offersRes = await fetch("http://localhost/market-connect-hub-main/api/get_plan_offers.php");
+          if (offersRes.ok) {
+            const offersData = await offersRes.json();
+            if (offersData.success) {
+              setPlanOffers(offersData.data);
+            }
+          }
+        } catch (err) {}
       } catch (error) {
         // Silent fallback in background polling
       }
@@ -452,6 +520,62 @@ export default function AdminPanel() {
     }
   };
 
+  const handleDeleteUser = async (id: string) => {
+    if (id === '1' || id === 'admin-1') {
+      toast.error("Master Admin node cannot be deleted.");
+      return;
+    }
+    if (!window.confirm("Are you sure you want to permanently delete this user?")) return;
+    
+    try {
+      const res = await fetch("http://localhost/market-connect-hub-main/api/delete_user.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Admin-Id": adminUser?.id || "" },
+        body: JSON.stringify({ id })
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success("User node successfully terminated.");
+        setDbUsers(prev => prev.filter(u => u.id !== id));
+        // Remove from local storage to keep synced
+        const allCurrentUsers = JSON.parse(localStorage.getItem('th_users') || '[]');
+        localStorage.setItem('th_users', JSON.stringify(allCurrentUsers.filter((u: any) => u.id !== id)));
+      } else {
+        toast.error(data.error || "Failed to delete user.");
+      }
+    } catch (err) {
+      toast.error("Network error deleting user.");
+    }
+  };
+  const handleUpdateUser = async (updatedUser: LibUser) => {
+    try {
+      const res = await fetch("http://localhost/market-connect-hub-main/api/admin_update_user.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Admin-Id": adminUser?.id || "" },
+        body: JSON.stringify({
+          id: updatedUser.id,
+          name: updatedUser.name,
+          email: updatedUser.email,
+          phone: updatedUser.phone,
+          role: updatedUser.role,
+          verified: updatedUser.verified,
+          subscription: updatedUser.subscription
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success("User profile successfully updated.");
+        setDbUsers(prev => prev.map(u => u.id === updatedUser.id ? updatedUser : u));
+        setSelectedUser(updatedUser);
+        setIsEditingUser(false);
+      } else {
+        toast.error(data.error || "Failed to update user.");
+      }
+    } catch (err) {
+      toast.error("Network error updating user.");
+    }
+  };
+
   const handleUpdateInquiryStatus = async (id: string, status: LibInquiry["status"]) => {
     try {
       updateInquiryStatus(id, status);
@@ -461,7 +585,7 @@ export default function AdminPanel() {
       try {
         await fetch("http://localhost/api/update_inquiry.php", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "X-Admin-Id": adminUser?.id || "" },
           body: JSON.stringify({ id, status })
         });
       } catch (err) {
@@ -481,7 +605,7 @@ export default function AdminPanel() {
       try {
         await fetch("http://localhost/api/delete_inquiry.php", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "X-Admin-Id": adminUser?.id || "" },
           body: JSON.stringify({ id })
         });
       } catch (err) {
@@ -541,7 +665,7 @@ export default function AdminPanel() {
       try {
         await fetch("http://localhost/api/approve_ad.php", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "X-Admin-Id": adminUser?.id || "" },
           body: JSON.stringify({ id })
         });
       } catch (err) {
@@ -561,7 +685,7 @@ export default function AdminPanel() {
       try {
         await fetch("http://localhost/api/reject_ad.php", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "X-Admin-Id": adminUser?.id || "" },
           body: JSON.stringify({ id })
         });
       } catch (err) {
@@ -581,7 +705,7 @@ export default function AdminPanel() {
       try {
         await fetch("http://localhost/api/delete_ad.php", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "X-Admin-Id": adminUser?.id || "" },
           body: JSON.stringify({ id })
         });
       } catch (err) {
@@ -589,6 +713,49 @@ export default function AdminPanel() {
       }
     } catch (e) {
       toast.error("Failed to delete ad.");
+    }
+  };
+
+  const handleTogglePlanOffer = async (planName: string, field: 'is_active' | 'is_monthly_active', currentStatus: number) => {
+    const newStatus = currentStatus === 1 ? 0 : 1;
+    try {
+      const res = await fetch("http://localhost/market-connect-hub-main/api/update_plan_offer.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Admin-Id": adminUser?.id || "" },
+        body: JSON.stringify({ plan_name: planName, [field]: newStatus })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setPlanOffers(prev => prev.map(p => p.plan_name === planName ? { ...p, [field]: newStatus } : p));
+        const offerType = field === 'is_active' ? 'Yearly' : 'Monthly';
+        toast.success(`${offerType} Offer for ${planName} ${newStatus ? 'Activated' : 'Deactivated'}`);
+      } else {
+        toast.error("Failed to toggle offer.");
+      }
+    } catch (err) {
+      toast.error("Error toggling offer.");
+    }
+  };
+
+  const handleOfferPriceChange = (planName: string, field: 'offer_price' | 'monthly_offer_price' | 'original_yearly_price' | 'original_monthly_price', value: string) => {
+    setPlanOffers(prev => prev.map(p => p.plan_name === planName ? { ...p, [field]: value } : p));
+  };
+
+  const handleUpdateOfferPrice = async (planName: string, field: 'offer_price' | 'monthly_offer_price' | 'original_yearly_price' | 'original_monthly_price', value: string) => {
+    try {
+      const res = await fetch("http://localhost/market-connect-hub-main/api/update_plan_offer.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Admin-Id": adminUser?.id || "" },
+        body: JSON.stringify({ plan_name: planName, [field]: parseInt(value) || 0 })
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success(`${field === 'offer_price' ? 'Yearly' : 'Monthly'} offer price updated`);
+      } else {
+        toast.error("Failed to update price.");
+      }
+    } catch (err) {
+      toast.error("Error updating price.");
     }
   };
 
@@ -644,7 +811,7 @@ export default function AdminPanel() {
           </div>
 
           <nav className="flex-1 space-y-1.5 overflow-x-hidden">
-            {adminTabs.map((tab) => (
+            {filteredTabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => {
@@ -707,11 +874,11 @@ export default function AdminPanel() {
             </button>
             <div className="flex items-center gap-4 pl-4 border-l border-white/50">
               <div className="text-right hidden sm:block">
-                <p className="text-sm font-black text-[#111827] uppercase tracking-tight">Zenze Admin</p>
-                <p className="text-[11px] font-bold text-[#64748B] uppercase tracking-widest">Head Ops</p>
+                <p className="text-sm font-black text-[#111827] uppercase tracking-tight">{adminUser.name || "Zenze Admin"}</p>
+                <p className="text-[11px] font-bold text-[#64748B] uppercase tracking-widest">{adminUser.role === 'admin' ? 'Master Admin' : 'Team Member'}</p>
               </div>
-              <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center text-[#111827] font-black text-sm shadow-lg shadow-primary/20">
-                Z
+              <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center text-[#111827] font-black text-sm shadow-lg shadow-primary/20 uppercase">
+                {(adminUser.name || 'Z').charAt(0)}
               </div>
             </div>
           </div>
@@ -926,22 +1093,12 @@ export default function AdminPanel() {
                       <p className="text-[10px] text-[#64748B] uppercase font-black tracking-widest mt-2 opacity-60">Global user permissions and verification matrix</p>
                     </div>
                     <div className="flex gap-3">
-                      <Button className="rounded-2xl h-14 px-8 bg-gradient-to-r from-[#8B5CF6] to-[#A78BFA] text-white font-black text-[11px] uppercase tracking-[0.2em] shadow-[10px_10px_30px_rgba(15,23,42,0.08),-10px_-10px_30px_rgba(255,255,255,0.8)] shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
-                        Create Segment Node
-                      </Button>
+                      {(isMasterAdmin || perms.includes('register_users')) && (
+                        <Button onClick={() => setShowCreateUserForm(true)} className="rounded-2xl h-14 px-8 bg-gradient-to-r from-[#8B5CF6] to-[#A78BFA] text-white font-black text-[11px] uppercase tracking-[0.2em] shadow-[10px_10px_30px_rgba(15,23,42,0.08),-10px_-10px_30px_rgba(255,255,255,0.8)] shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+                          Create Segment Node
+                        </Button>
+                      )}
                     </div>
-                  </div>
-
-                  <div className="flex bg-[#F8FAFC] border border-white p-1.5 rounded-2xl w-fit shadow-[10px_10px_30px_rgba(15,23,42,0.08),-10px_-10px_30px_rgba(255,255,255,0.8)]">
-                    {['close', 'all', 'seller', 'buyer'].map(filter => (
-                      <button
-                        key={filter}
-                        onClick={() => setUserFilter(filter as any)}
-                        className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${userFilter === filter ? 'bg-white text-primary shadow-sm scale-105' : 'text-[#64748B] hover:text-[#111827]'}`}
-                      >
-                        {filter}
-                      </button>
-                    ))}
                   </div>
 
                   {(() => {
@@ -955,7 +1112,21 @@ export default function AdminPanel() {
 
                     return (
                       <>
-                        {userFilter !== 'close' && (
+                        {(isMasterAdmin || perms.includes('manage_users')) ? (
+                          <>
+                            <div className="flex bg-[#F8FAFC] border border-white p-1.5 rounded-2xl w-fit shadow-[10px_10px_30px_rgba(15,23,42,0.08),-10px_-10px_30px_rgba(255,255,255,0.8)] mb-8">
+                              {['close', 'all', 'seller', 'buyer'].map(filter => (
+                                <button
+                                  key={filter}
+                                  onClick={() => setUserFilter(filter as any)}
+                                  className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${userFilter === filter ? 'bg-white text-primary shadow-sm scale-105' : 'text-[#64748B] hover:text-[#111827]'}`}
+                                >
+                                  {filter}
+                                </button>
+                              ))}
+                            </div>
+
+                            {userFilter !== 'close' && (
                           <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-8 mb-16">
                             {dbUsers.filter(u => userFilter === 'all' ? true : u.role === userFilter).map((u) => (
                             <motion.div
@@ -1046,16 +1217,34 @@ export default function AdminPanel() {
                                 </div>
                               )}
 
-                              <div className="flex gap-2">
-                                <Button
-                                  onClick={() => handleViewUser(u)}
-                                  className="flex-[3] rounded-2xl h-12 px-2 bg-primary/10 text-primary border border-primary/20 font-bold text-[10px] uppercase tracking-widest hover:bg-primary hover:text-[#111827] transition-all shadow-sm group/view"
+                              <div className="flex flex-col gap-2">
+                                <div className="flex gap-2">
+                                  <Button
+                                    onClick={() => handleViewUser(u)}
+                                    className="flex-[3] rounded-2xl h-12 px-2 bg-primary/10 text-primary border border-primary/20 font-bold text-[10px] uppercase tracking-widest hover:bg-primary hover:text-[#111827] transition-all shadow-sm group/view"
+                                  >
+                                    <Eye className="w-4 h-4 mr-1.5 shrink-0 group-hover/view:scale-110 transition-transform" />
+                                    <span className="truncate">Monitor Node</span>
+                                  </Button>
+                                  <Button onClick={() => handleDeleteUser(u.id)} variant="outline" className="flex-[2] px-2 rounded-2xl border-white/50 hover:bg-rose-500 hover:text-white font-black text-[10px] uppercase tracking-widest h-12 text-rose-500 group/del transition-all">
+                                    <Trash2 className="w-4 h-4 shrink-0 group-hover/del:scale-110 transition-transform" />
+                                  </Button>
+                                </div>
+                                <Button 
+                                  onClick={() => {
+                                    if (adminUser) {
+                                      getOrCreateChatRoom(adminUser.id, u.id, {
+                                        type: "support",
+                                        id: "support",
+                                        title: `Support: ${u.name}`
+                                      });
+                                      setActiveTab("support");
+                                    }
+                                  }}
+                                  className="w-full rounded-2xl h-10 px-2 bg-blue-500/10 text-blue-500 border border-blue-500/20 font-bold text-[10px] uppercase tracking-widest hover:bg-blue-500 hover:text-white transition-all shadow-sm group/msg"
                                 >
-                                  <Eye className="w-4 h-4 mr-1.5 shrink-0 group-hover/view:scale-110 transition-transform" />
-                                  <span className="truncate">Monitor Node</span>
-                                </Button>
-                                <Button variant="outline" className="flex-[2] px-2 rounded-2xl border-white/50 hover:bg-rose-500/10 hover:text-rose-600 font-bold text-[10px] uppercase tracking-widest h-12">
-                                  <span className="truncate">Restrict</span>
+                                  <MessageSquare className="w-3.5 h-3.5 mr-1.5 shrink-0 group-hover/msg:scale-110 transition-transform" />
+                                  <span className="truncate">Message Node</span>
                                 </Button>
                               </div>
                             </motion.div>
@@ -1120,12 +1309,21 @@ export default function AdminPanel() {
                                         </td>
                                         <td className="p-6 text-xs font-medium text-[#64748B]">{u.phone || "N/A"}</td>
                                         <td className="p-6 text-right">
-                                          <Button
-                                            onClick={() => handleViewUser(u)}
-                                            className="rounded-xl h-10 px-4 bg-primary/10 text-primary border border-primary/20 font-bold text-[10px] uppercase tracking-widest hover:bg-primary hover:text-[#111827] transition-all shadow-sm"
-                                          >
-                                            View Details
-                                          </Button>
+                                          <div className="flex justify-end gap-2">
+                                            <Button
+                                              onClick={() => handleViewUser(u)}
+                                              className="rounded-xl h-10 px-4 bg-primary/10 text-primary border border-primary/20 font-bold text-[10px] uppercase tracking-widest hover:bg-primary hover:text-[#111827] transition-all shadow-sm"
+                                            >
+                                              View Details
+                                            </Button>
+                                            <Button
+                                              onClick={() => handleDeleteUser(u.id)}
+                                              className="rounded-xl h-10 w-10 p-0 bg-rose-500/10 text-rose-500 border border-rose-500/20 font-bold text-[10px] hover:bg-rose-500 hover:text-white transition-all shadow-sm"
+                                              title="Delete User"
+                                            >
+                                              <Trash2 className="w-4 h-4" />
+                                            </Button>
+                                          </div>
                                         </td>
                                       </tr>
                                     );
@@ -1135,6 +1333,14 @@ export default function AdminPanel() {
                             </div>
                           </div>
                         )}
+                        </>
+                      ) : (
+                        <div className="py-12 text-center bg-[#F8FAFC] rounded-[2.5rem] border border-white shadow-sm mt-8">
+                          <Users className="w-12 h-12 mx-auto text-[#64748B] opacity-20 mb-4" />
+                          <p className="text-sm text-[#111827] font-black uppercase tracking-widest">User Management Restricted</p>
+                          <p className="text-[10px] text-[#64748B] opacity-60 mt-2 font-bold uppercase tracking-widest">You have permission to register new users only.</p>
+                        </div>
+                      )}
                       </>
                     );
                   })()}
@@ -1306,7 +1512,114 @@ export default function AdminPanel() {
                       )}
                     </div>
                   </div>
+
+                  <div className="bg-white/85 backdrop-blur-[20px] border border-white rounded-[36px] p-6 md:p-10 shadow-[10px_10px_30px_rgba(15,23,42,0.08),-10px_-10px_30px_rgba(255,255,255,0.8)] relative overflow-hidden mt-10">
+                    <div className="flex items-center gap-4 mb-8">
+                      <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500 shadow-inner">
+                        <Tag className="w-6 h-6" />
+                      </div>
+                      <h3 className="text-xl font-black uppercase tracking-tight">Plan Offers & Pricing</h3>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+                      {planOffers.length > 0 ? planOffers.map(offer => (
+                        <div key={offer.plan_name} className="p-6 bg-[#F8FAFC] rounded-3xl border border-white hover:border-primary/30 transition-all flex flex-col justify-between">
+                          <div className="flex justify-between items-start mb-4">
+                             <span className="text-[14px] font-black uppercase tracking-widest">{offer.plan_name}</span>
+                             <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${offer.is_active ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>{offer.is_active ? 'Active' : 'Inactive'}</span>
+                          </div>
+                          
+                          <div className="flex flex-col gap-3 mb-6">
+                            <div className="bg-white p-3 rounded-2xl border border-gray-100 shadow-sm">
+                              <div className="flex justify-between items-center mb-2">
+                                <label className="text-[10px] font-black text-[#64748B] uppercase tracking-widest">Original Yearly Price (₹)</label>
+                              </div>
+                              <Input 
+                                type="number" 
+                                className="h-8 text-sm font-black uppercase tracking-tight rounded-xl bg-gray-50 focus-visible:ring-primary/20 mb-2 border-0"
+                                value={offer.original_yearly_price || 0}
+                                onChange={(e) => handleOfferPriceChange(offer.plan_name, 'original_yearly_price', e.target.value)}
+                                onBlur={(e) => handleUpdateOfferPrice(offer.plan_name, 'original_yearly_price', e.target.value)}
+                              />
+
+                              <div className="flex justify-between items-center mb-2">
+                                <label className="text-[10px] font-black text-[#64748B] uppercase tracking-widest">Yearly Offer Price (₹)</label>
+                                <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${offer.is_active ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
+                                  {offer.is_active ? 'Active' : 'Inactive'}
+                                </span>
+                              </div>
+                              <Input 
+                                type="number" 
+                                className="h-8 text-sm font-black uppercase tracking-tight rounded-xl bg-gray-50 focus-visible:ring-primary/20 mb-2 border-0"
+                                value={offer.offer_price === 0 && !offer.is_active ? "" : offer.offer_price}
+                                onChange={(e) => handleOfferPriceChange(offer.plan_name, 'offer_price', e.target.value)}
+                                onBlur={(e) => handleUpdateOfferPrice(offer.plan_name, 'offer_price', e.target.value)}
+                              />
+                              <Button 
+                                onClick={() => handleTogglePlanOffer(offer.plan_name, 'is_active', offer.is_active)}
+                                className={`w-full rounded-xl font-black text-[9px] uppercase tracking-widest h-8 ${offer.is_active ? 'bg-rose-500 hover:bg-rose-600 text-white' : 'bg-emerald-500 hover:bg-emerald-600 text-white'}`}
+                              >
+                                {offer.is_active ? 'Deactivate Yearly' : 'Activate Yearly'}
+                              </Button>
+                            </div>
+
+                            <div className="bg-white p-3 rounded-2xl border border-gray-100 shadow-sm">
+                              <div className="flex justify-between items-center mb-2">
+                                <label className="text-[10px] font-black text-[#64748B] uppercase tracking-widest">Original Monthly Price (₹)</label>
+                              </div>
+                              <Input 
+                                type="number" 
+                                className="h-8 text-sm font-black uppercase tracking-tight rounded-xl bg-gray-50 focus-visible:ring-primary/20 mb-2 border-0"
+                                value={offer.original_monthly_price || 0}
+                                onChange={(e) => handleOfferPriceChange(offer.plan_name, 'original_monthly_price', e.target.value)}
+                                onBlur={(e) => handleUpdateOfferPrice(offer.plan_name, 'original_monthly_price', e.target.value)}
+                              />
+
+                              <div className="flex justify-between items-center mb-2">
+                                <label className="text-[10px] font-black text-[#64748B] uppercase tracking-widest">Monthly Offer Price (₹)</label>
+                                <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${offer.is_monthly_active ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
+                                  {offer.is_monthly_active ? 'Active' : 'Inactive'}
+                                </span>
+                              </div>
+                              <Input 
+                                type="number" 
+                                className="h-8 text-sm font-black uppercase tracking-tight rounded-xl bg-gray-50 focus-visible:ring-primary/20 mb-2 border-0"
+                                value={offer.monthly_offer_price === 0 && !offer.is_monthly_active ? "" : offer.monthly_offer_price}
+                                onChange={(e) => handleOfferPriceChange(offer.plan_name, 'monthly_offer_price', e.target.value)}
+                                onBlur={(e) => handleUpdateOfferPrice(offer.plan_name, 'monthly_offer_price', e.target.value)}
+                              />
+                              <Button 
+                                onClick={() => handleTogglePlanOffer(offer.plan_name, 'is_monthly_active', offer.is_monthly_active)}
+                                className={`w-full rounded-xl font-black text-[9px] uppercase tracking-widest h-8 ${offer.is_monthly_active ? 'bg-rose-500 hover:bg-rose-600 text-white' : 'bg-emerald-500 hover:bg-emerald-600 text-white'}`}
+                              >
+                                {offer.is_monthly_active ? 'Deactivate Monthly' : 'Activate Monthly'}
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      )) : (
+                        <div className="col-span-full py-8 text-center text-sm font-black uppercase tracking-widest text-[#64748B] opacity-60">
+                          Loading Offers...
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
+              )}
+
+              {activeTab === "support" && (
+                <div className="space-y-8">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                      <h2 className="text-xl font-black tracking-tight">Support Network Hub</h2>
+                      <p className="text-[10px] text-[#64748B] uppercase font-black tracking-widest opacity-60">Manage direct platform support communications</p>
+                    </div>
+                  </div>
+                  <ChatCore key="support" adminUser={adminUser} systemUsers={dbUsers} />
+                </div>
+              )}
+
+              {activeTab === "team" && (
+                <TeamMembers />
               )}
 
               {activeTab === "analytics" && (
@@ -2146,6 +2459,7 @@ export default function AdminPanel() {
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                     {/* Security Node: Password & Auth */}
+                    {isMasterAdmin && (
                     <motion.div
                       initial={{ opacity: 0, x: -30 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -2192,6 +2506,7 @@ export default function AdminPanel() {
                         </Button>
                       </div>
                     </motion.div>
+                    )}
 
                     {/* Data Security Matrix */}
                     <div className="space-y-10">
@@ -2700,7 +3015,7 @@ export default function AdminPanel() {
                               try {
                                 await fetch("http://localhost/api/delete_job.php", {
                                   method: "POST",
-                                  headers: { "Content-Type": "application/json" },
+                                  headers: { "Content-Type": "application/json", "X-Admin-Id": adminUser?.id || "" },
                                   body: JSON.stringify({ id: job.id })
                                 });
                                 setDbJobs(prev => prev.filter(j => j.id !== job.id));
@@ -2875,9 +3190,20 @@ export default function AdminPanel() {
                     <h3 className="text-2xl font-black tracking-tighter uppercase">Entity Verification Matrix</h3>
                     <p className="text-[11px] text-primary font-black uppercase tracking-[0.2em] mt-1">Deep Node Reconnaissance Active</p>
                   </div>
-                  <button onClick={() => setSelectedUser(null)} className="p-4 bg-[#F8FAFC] hover:bg-[#F1F5F9] rounded-2xl transition-colors">
-                    <X className="w-5 h-5" />
-                  </button>
+                  <div className="flex gap-2">
+                    {isEditingUser ? (
+                      <button onClick={() => handleUpdateUser(selectedUser)} className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-colors">
+                        Save Changes
+                      </button>
+                    ) : (
+                      <button onClick={() => setIsEditingUser(true)} className="px-4 py-2 bg-primary hover:bg-primary/90 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-colors">
+                        Edit Node
+                      </button>
+                    )}
+                    <button onClick={() => { setSelectedUser(null); setIsEditingUser(false); }} className="p-2 bg-[#F8FAFC] hover:bg-[#F1F5F9] rounded-xl transition-colors">
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -2886,17 +3212,55 @@ export default function AdminPanel() {
                       <div className="w-20 h-20 rounded-[1.5rem] bg-primary flex items-center justify-center text-[#111827] font-black text-2xl shadow-[10px_10px_30px_rgba(15,23,42,0.08),-10px_-10px_30px_rgba(255,255,255,0.8)] shadow-primary/20 mb-3">
                         {selectedUser.name.substring(0, 2).toUpperCase()}
                       </div>
-                      <h4 className="text-xl font-black uppercase tracking-tight leading-none">{selectedUser.name}</h4>
-                      <p className="text-[10px] text-primary font-black uppercase tracking-widest mt-1.5">Auth: {selectedUser.role}</p>
+                      {isEditingUser ? (
+                        <Input 
+                          value={selectedUser.name} 
+                          onChange={(e) => setSelectedUser({ ...selectedUser, name: e.target.value })} 
+                          className="text-center font-black uppercase mb-1 h-8 rounded-lg border-0 bg-white/60 focus-visible:ring-primary/20"
+                        />
+                      ) : (
+                        <h4 className="text-xl font-black uppercase tracking-tight leading-none">{selectedUser.name}</h4>
+                      )}
+
+                      {isEditingUser ? (
+                        <select 
+                          value={selectedUser.role} 
+                          onChange={(e) => setSelectedUser({ ...selectedUser, role: e.target.value as any })}
+                          className="mt-2 text-xs font-black uppercase p-1.5 rounded-lg bg-white/60 border-0 outline-none focus:ring-2 focus:ring-primary/20"
+                        >
+                          <option value="seller">Seller</option>
+                          <option value="buyer">Buyer</option>
+                          <option value="delivery">Delivery</option>
+                        </select>
+                      ) : (
+                        <p className="text-[10px] text-primary font-black uppercase tracking-widest mt-1.5">Auth: {selectedUser.role}</p>
+                      )}
 
                       <div className="mt-5 w-full pt-5 border-t border-primary/10 space-y-2.5">
                         <div className="flex items-center gap-3 text-sm text-[#64748B]">
                           <Mail className="w-3.5 h-3.5 text-primary" />
-                          <span className="truncate">{selectedUser.email}</span>
+                          {isEditingUser ? (
+                            <Input 
+                              value={selectedUser.email} 
+                              onChange={(e) => setSelectedUser({ ...selectedUser, email: e.target.value })} 
+                              className="h-7 text-xs flex-1 rounded-lg border-0 bg-white/60 focus-visible:ring-primary/20"
+                            />
+                          ) : (
+                            <span className="truncate">{selectedUser.email}</span>
+                          )}
                         </div>
                         <div className="flex items-center gap-3 text-sm text-[#64748B]">
                           <Phone className="w-3.5 h-3.5 text-primary" />
-                          <span>{selectedUser.phone || "No Registry"}</span>
+                          {isEditingUser ? (
+                            <Input 
+                              value={selectedUser.phone || ""} 
+                              onChange={(e) => setSelectedUser({ ...selectedUser, phone: e.target.value })} 
+                              className="h-7 text-xs flex-1 rounded-lg border-0 bg-white/60 focus-visible:ring-primary/20"
+                              placeholder="Phone Number"
+                            />
+                          ) : (
+                            <span>{selectedUser.phone || "No Registry"}</span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -2911,12 +3275,78 @@ export default function AdminPanel() {
                       </div>
                       <div className="p-4 bg-[#F8FAFC] rounded-2xl border border-white">
                         <p className="text-[9px] font-black text-[#64748B] uppercase tracking-widest mb-2">Node Authority</p>
-                        <div className="flex justify-between items-center bg-primary/5 p-2.5 rounded-xl border border-primary/10">
-                          <span className="text-[10px] font-black text-primary">AUTHORIZED</span>
-                          <ShieldCheck className="w-3.5 h-3.5 text-primary" />
-                        </div>
-                      </div>
+                        {isEditingUser ? (
+                          <div className="flex items-center gap-2">
+                            <label className="text-[10px] font-black flex items-center gap-2 cursor-pointer">
+                              <input 
+                                type="checkbox" 
+                                checked={!!selectedUser.verified} 
+                                onChange={(e) => setSelectedUser({ ...selectedUser, verified: e.target.checked })}
+                                className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                              />
+                              Verified Node
+                            </label>
+                          </div>
+                        ) : (
+                          <div className={`flex justify-between items-center ${selectedUser.verified ? 'bg-primary/5 border-primary/10' : 'bg-rose-500/5 border-rose-500/10'} p-2.5 rounded-xl border`}>
+                            <span className={`text-[10px] font-black ${selectedUser.verified ? 'text-primary' : 'text-rose-500'}`}>
+                              {selectedUser.verified ? 'AUTHORIZED' : 'UNAUTHORIZED'}
+                            </span>
+                            <ShieldCheck className={`w-3.5 h-3.5 ${selectedUser.verified ? 'text-primary' : 'text-rose-500'}`} />
+                          </div>
+                        )}
                     </div>
+
+                    <div className="p-4 bg-[#F8FAFC] rounded-2xl border border-white mt-5">
+                      <p className="text-[9px] font-black text-[#64748B] uppercase tracking-widest mb-2">Subscription Plan</p>
+                      {isEditingUser ? (
+                        <div className="flex flex-col gap-2">
+                          <select 
+                            value={selectedUser.subscription?.planName || "none"} 
+                            onChange={(e) => {
+                              const plan = e.target.value;
+                              if (plan === "none") {
+                                setSelectedUser({ ...selectedUser, subscription: undefined });
+                              } else {
+                                setSelectedUser({
+                                  ...selectedUser,
+                                  subscription: {
+                                    planId: plan.toLowerCase(),
+                                    planName: plan,
+                                    startDate: new Date().toISOString(),
+                                    endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+                                    status: "active",
+                                    billingCycle: "yearly",
+                                    pricePaid: 0
+                                  }
+                                });
+                              }
+                            }}
+                            className="text-xs font-black uppercase p-2 rounded-lg bg-white border border-gray-100 focus:ring-2 focus:ring-primary/20"
+                          >
+                            <option value="none">No Plan</option>
+                            <option value="Starter">Starter</option>
+                            <option value="Basic">Basic</option>
+                            <option value="Premium">Premium</option>
+                            <option value="Advanced">Advanced</option>
+                            <option value="Enterprise">Enterprise</option>
+                          </select>
+                          {selectedUser.subscription && (
+                            <div className="text-[9px] text-[#64748B] font-bold">
+                              Ends: {new Date(selectedUser.subscription.endDate).toLocaleDateString()}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="flex justify-between items-center bg-blue-500/5 p-2.5 rounded-xl border border-blue-500/10">
+                          <span className="text-[10px] font-black text-blue-600">
+                            {selectedUser.subscription?.planName || "NONE"}
+                          </span>
+                          <Zap className="w-3.5 h-3.5 text-blue-600" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
                   </div>
 
                   <div className="space-y-5">
@@ -3015,7 +3445,7 @@ export default function AdminPanel() {
                     };
                     const res = await fetch("http://localhost/api/add_job.php", {
                       method: "POST",
-                      headers: { "Content-Type": "application/json" },
+                      headers: { "Content-Type": "application/json", "X-Admin-Id": adminUser?.id || "" },
                       body: JSON.stringify(newJob)
                     });
                     if (res.ok) {
@@ -3394,6 +3824,101 @@ export default function AdminPanel() {
                   )}
                 </div>
               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* User Registration Modal */}
+      <AnimatePresence>
+        {showCreateUserForm && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowCreateUserForm(false)}
+              className="absolute inset-0 bg-white/40 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-white rounded-[2.5rem] shadow-2xl relative z-10 w-full max-w-lg overflow-hidden border border-gray-100"
+            >
+              <form onSubmit={async (e) => {
+                e.preventDefault();
+                try {
+                  const res = await fetch("http://localhost/market-connect-hub-main/api/register_user.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "X-Admin-Id": adminUser?.id || "" },
+                    body: JSON.stringify({
+                      name: cuName,
+                      email: cuEmail,
+                      password: cuPassword,
+                      role: cuRole
+                    })
+                  });
+                  const data = await res.json();
+                  if (data.success) {
+                    toast.success("User successfully registered to the network!");
+                    setShowCreateUserForm(false);
+                    setCuName("");
+                    setCuEmail("");
+                    setCuPassword("");
+                    const allCurrentUsers = JSON.parse(localStorage.getItem('th_users') || '[]');
+                    localStorage.setItem('th_users', JSON.stringify([...allCurrentUsers, data.user]));
+                    setDbUsers(prev => [...prev, data.user]);
+                  } else {
+                    toast.error(data.error || "Failed to register user");
+                  }
+                } catch (err) {
+                  toast.error("Network error during registration");
+                }
+              }}>
+                <div className="p-8 pb-6 border-b border-gray-50 flex justify-between items-start">
+                  <div>
+                    <h3 className="text-2xl font-black uppercase tracking-tight text-[#111827]">Register New Node</h3>
+                    <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mt-1">Manual User Registration Protocol</p>
+                  </div>
+                  <button type="button" onClick={() => setShowCreateUserForm(false)} className="p-3 bg-[#F8FAFC] hover:bg-[#F1F5F9] rounded-xl transition-colors">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                
+                <div className="p-8 space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-[#64748B]">Full Name</label>
+                    <Input value={cuName} onChange={e => setCuName(e.target.value)} required placeholder="Enter user's name" className="h-12 rounded-xl bg-[#F8FAFC] border-transparent focus:border-primary/30" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-[#64748B]">Email Address</label>
+                    <Input type="email" value={cuEmail} onChange={e => setCuEmail(e.target.value)} required placeholder="Enter valid email" className="h-12 rounded-xl bg-[#F8FAFC] border-transparent focus:border-primary/30" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-[#64748B]">Initial Password</label>
+                    <Input type="password" value={cuPassword} onChange={e => setCuPassword(e.target.value)} required placeholder="Secure password" className="h-12 rounded-xl bg-[#F8FAFC] border-transparent focus:border-primary/30" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-[#64748B]">Role Assignment</label>
+                    <div className="flex gap-4">
+                      <label className="flex items-center gap-2 cursor-pointer group">
+                        <input type="radio" name="role" value="buyer" checked={cuRole === 'buyer'} onChange={() => setCuRole('buyer')} className="w-4 h-4 accent-primary" />
+                        <span className="text-sm font-bold uppercase tracking-widest group-hover:text-primary transition-colors">Buyer</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer group">
+                        <input type="radio" name="role" value="seller" checked={cuRole === 'seller'} onChange={() => setCuRole('seller')} className="w-4 h-4 accent-primary" />
+                        <span className="text-sm font-bold uppercase tracking-widest group-hover:text-primary transition-colors">Seller</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-8 pt-4 bg-[#F8FAFC] border-t border-gray-50 flex gap-4">
+                  <Button type="button" onClick={() => setShowCreateUserForm(false)} variant="ghost" className="flex-1 h-12 rounded-xl font-black uppercase text-[10px] tracking-widest">Abort</Button>
+                  <Button type="submit" className="flex-2 h-14 rounded-2xl bg-[#8B5CF6] text-white font-black text-[11px] uppercase tracking-widest shadow-[10px_10px_30px_rgba(15,23,42,0.08),-10px_-10px_30px_rgba(255,255,255,0.8)] shadow-primary/20 transition-transform active:scale-95">Register User</Button>
+                </div>
+              </form>
             </motion.div>
           </div>
         )}
